@@ -13,11 +13,14 @@ namespace TaskManagement.Controllers
     public class WorkSpaceController : ControllerBase
     {
         private readonly IWorkSpaceRepository _workSpaceRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public WorkSpaceController(IWorkSpaceRepository workSpaceRepository, IMapper mapper)
+        public WorkSpaceController(IWorkSpaceRepository workSpaceRepository,
+            IUserRepository userRepository , IMapper mapper)
         {
             _workSpaceRepository = workSpaceRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
@@ -38,7 +41,7 @@ namespace TaskManagement.Controllers
             {
                 throw new Exception(ex.Message);
             }
-            
+
         }
 
         [HttpGet("{id}")]
@@ -62,11 +65,11 @@ namespace TaskManagement.Controllers
 
                 throw new Exception(ex.Message);
             }
-            
+
         }
 
         [HttpGet("{id}/sections")]
-        [ProducesResponseType(200, Type =typeof(IEnumerable<Section>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Section>))]
         [ProducesResponseType(400)]
         public IActionResult GetSectionsByWorkSpace(int id)
         {
@@ -84,13 +87,13 @@ namespace TaskManagement.Controllers
 
                 throw new Exception(ex.Message);
             }
-            
+
         }
 
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateWorkSpace([FromQuery] int userID , [FromQuery] int roleID,
+        public IActionResult CreateWorkSpace([FromQuery] int userID, [FromQuery] int roleID,
             [FromBody] WorkSpaceDto workSpaceCreate) // tạo workspace
         {
             try
@@ -122,7 +125,7 @@ namespace TaskManagement.Controllers
 
                 throw new Exception(ex.Message);
             }
-            
+
         }
 
         [HttpPut("{workSpaceID}")]
@@ -153,7 +156,7 @@ namespace TaskManagement.Controllers
 
                 throw new Exception(ex.Message);
             }
-            
+
         }
 
         [HttpDelete("{workSpaceID}")]
@@ -177,13 +180,50 @@ namespace TaskManagement.Controllers
                 }
 
                 return NoContent();
-            } 
+            }
             catch (Exception ex)
             {
 
                 throw new Exception(ex.Message);
             }
-            
+
+        }
+
+        [HttpGet("{workSpaceID}/members")]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<User>))]
+        public IActionResult GetUsersByWorkSpace(int workSpaceID)
+        {
+            if (!_workSpaceRepository.WorkSpaceExists(workSpaceID))
+            {
+                return NotFound();
+            }
+
+            var users = _mapper.Map<List<UserDto>>
+                (_workSpaceRepository.GetUsersByWorkSpace(workSpaceID));
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            return Ok(users);
+        }
+
+
+        [HttpPost("{workSpaceID}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        public IActionResult AddMemberIntoWorkspace(int workSpaceID, string nameUser, int roleID)
+        {
+            if (!_workSpaceRepository.WorkSpaceExists(workSpaceID)
+                || !_userRepository.UserNameExists(nameUser))
+                return NotFound();
+
+            if (!_workSpaceRepository.AddMemberIntoWorkspace(workSpaceID, nameUser, roleID))
+            {
+                ModelState.AddModelError("", "Something wrong while add member");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Add member successfully");
         }
 
     }

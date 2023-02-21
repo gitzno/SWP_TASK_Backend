@@ -52,6 +52,7 @@ namespace TaskManagement.Repository
            return _context.Users.Any(u => u.Id == userId);
         }
 
-     
+        public bool UserNameExists(string userName)
+        => _context.Users.Any(u => u.UserName == userName); 
     }
 }

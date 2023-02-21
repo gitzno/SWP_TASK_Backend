@@ -60,15 +60,23 @@ namespace TaskManagement.Controllers
             if (userCreate == null)
                 return BadRequest(ModelState);
 
+
+            if (_userRepository.UserNameExists(userCreate.UserName))
+            {
+                ModelState.AddModelError("", "This User Name aleready exists.");
+                return StatusCode(402, ModelState);
+            }
+
             var userMap = _mapper.Map<User>(userCreate);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
             if (!_userRepository.CreateUser(userMap))
             {
                 ModelState.AddModelError("", "Something wrong while created");
                 return StatusCode(500, ModelState);
             }
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            
 
             return Ok("Created successfully");
         }

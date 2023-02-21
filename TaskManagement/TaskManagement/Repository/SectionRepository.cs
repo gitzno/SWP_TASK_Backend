@@ -11,6 +11,25 @@ namespace TaskManagement.Repository
         {
             _context = context;
         }
+
+        public bool AddMemberIntoSection(int sectionID, string userName, int roleID)
+        {
+            var user = _context.Users.Where(u => u.UserName == userName).FirstOrDefault();
+
+            var roleSection = new UserSectionRole
+            {
+                UserId = user.Id,
+                RoleId = roleID,
+                SectionId = sectionID,
+            };
+            _context.UserSectionRoles.Add(roleSection);
+            return Save();
+        }
+
+        public bool CheckUserInWorkSpace(int userID, int workSpaceID)
+            => _context.UserWorkSpaceRoles
+            .Any(u=> u.WorkSpaceId== workSpaceID && u.UserId == userID);
+
         public bool CreateSection(int userID, int roleID, Section section)
         {
             var user = _context.Users.Where(u => u.Id == userID).FirstOrDefault();
@@ -42,6 +61,12 @@ namespace TaskManagement.Repository
         public ICollection<Section> GetSections()
         => _context.Sections.ToList();
 
+        public ICollection<Models.Task> GetTasksBySection(int sectionID)
+        => _context.Tasks.Where(s => s.Section.Id == sectionID).ToList();
+
+        public ICollection<User> GetUsersBySection(int sectionID)
+        => _context.UserSectionRoles.Where(w => w.SectionId == sectionID)
+            .Select(u => u.User).ToList();
         public bool Save()
         {
             var saved = _context.SaveChanges(); 
