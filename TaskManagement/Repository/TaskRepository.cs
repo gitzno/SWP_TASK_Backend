@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using TaskManagement.Dto;
 using TaskManagement.Interface;
 using TaskManagement.Models;
+using TaskManagement.Service;
 using TaskManagement.Utils;
 using static System.Collections.Specialized.BitVector32;
 
@@ -15,23 +16,7 @@ namespace TaskManagement.Repository
         private readonly IMapper _mapper;
 
 
-        public static class Status
-        {
-            public const string Success = "200";
-            public const string NotFound = "404";
-            public const string BadRequest = "400";
-            public const string Created = "201";
-            public const string NoContent = "204";
-        }
-
-        public static class Message
-        {
-            public const string Success = "Request processed successfully";
-            public const string NotFound = "Not found";
-            public const string BadRequest = "Bad request";
-            public const string Created = "Resource created successfully";
-            public const string NoContent = "No Content";
-        }
+        
         public TaskRepository(TaskManagementContext context, IMapper mapper)
         {
             _context = context;
@@ -50,15 +35,15 @@ namespace TaskManagement.Repository
             if (tasks == null)
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "Bad request",
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
                     Data = null,
                 };
             else
                 return new ResponseObject
                 {
-                    Status = "200",
-                    Message = "Successfully",
+                    Status = Status.Success,
+                    Message = Message.Success,
                     Data = taskMap,
                 };
         }
@@ -150,7 +135,7 @@ namespace TaskManagement.Repository
                 return new ResponseObject
                 {
                     Status = Status.NotFound,
-                    Message = "No task done",
+                    Message = Message.NotFound,
                     Data = null,
                 };
             }
@@ -170,21 +155,13 @@ namespace TaskManagement.Repository
         {
             var user = _context.Users.SingleOrDefault(o => o.Id == userId);
             var role = _context.Roles.SingleOrDefault(o => o.Id == roleId);
-            if (user == null)
+            if (user == null|| role == null)
                 return new ResponseObject
                 {
-                    Status = "404",
-                    Message = "Not found user",
+                    Status = Status.NotFound,
+                    Message = Message.NotFound,
                     Data = null
                 };
-            if (role == null)
-                return new ResponseObject
-                {
-                    Status = "404",
-                    Message = "Not found role",
-                    Data = null
-                };
-
 
             var userTaskRole = new UserTaskRole
             {
@@ -201,16 +178,16 @@ namespace TaskManagement.Repository
             if (Save())
                 return new ResponseObject
                 {
-                    Status = "200",
-                    Message = "Task created",
+                    Status = Status.Success,
+                    Message = Message.Success,
                     Data = taskMap
                 };
             else
             {
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "Bad request"
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest
                 };
             }
 
@@ -227,8 +204,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "200",
-                    Message = "successfully",
+                    Status = Status.Success,
+                    Message = Message.Success,
                     Data = taskMap
                 };
             }
@@ -236,8 +213,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "Bad request",
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
                     Data = null
                 };
             }
@@ -251,8 +228,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "204",
-                    Message = "Successfully",
+                    Status = Status.Success,
+                    Message = Message.Success,
                     Data = null
 
                 };
@@ -261,8 +238,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "Bad request"
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest
                 };
             }
         }
@@ -315,6 +292,111 @@ namespace TaskManagement.Repository
             return _context.UserTaskRoles.Where(t => t.TaskId == taskID && t.RoleId != 1).Count();
         }
 
+        public ResponseObject AddMemberIntoTask(int taskID, int userID, int roleID)
+        {
+            var task = _context.Tasks.Where(o => o.Id == taskID).FirstOrDefault();
+            var user = _context.Users.Where(o => o.Id == userID).FirstOrDefault();
+            var role = _context.Roles.Where(o => o.Id == roleID).FirstOrDefault();
+
+            if (user == null || task == null || role == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                    Data = null,
+                };
+            }
+
+            var addUserTask = new UserTaskRole
+            {
+                TaskId = taskID,
+                RoleId = roleID,
+                UserId = userID,
+            };
+            _context.UserTaskRoles.Add(addUserTask);
+            var userMap = _mapper.Map<UserDto>(user);
+            if (Save())
+            {
+                return new ResponseObject
+                {
+                    Status = Status.Success,
+                    Message = Message.Success,
+                    Data = userMap
+                };
+            }
+            else
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                    Data = null
+                };
+            }
+        }
+
+        public ResponseObject GetTasksInSection(int sectionId)
+        {
+            var task = _context.Tasks.Where(o => o.SectionId == sectionId).ToList();
+            var taskMap = _mapper.Map<List<TaskDto>>(task);
+            if (task == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                    Data = null
+                };
+            }
+            else
+            {
+                return new ResponseObject
+                {
+                    Status = Status.Success,
+                    Message = Message.Success,
+                    Data = taskMap
+                };
+            }
+        }
+
+        public ResponseObject UpdateImage(int taskID, string file)
+        {
+            var task = _context.Tasks.Where(o => o.Id == taskID).FirstOrDefault();
+            if (task != null)
+            {
+                task.Image = file;
+                _context.Update(task);
+                var taskMap = _mapper.Map<TaskDto>(task);
+                if (Save())
+                {
+                    return new ResponseObject
+                    {
+                        Status = Status.Success,
+                        Message = Message.Success,
+                        Data = taskMap
+                    };
+                }
+                else
+                {
+                    return new ResponseObject
+                    {
+                        Status = Status.BadRequest,
+                        Message = Message.BadRequest,
+                        Data = null
+                    };
+                }
+            }
+            else
+            {
+                return new ResponseObject
+                {
+                    Status = Status.NotFound,
+                    Message = Message.NotFound,
+                    Data = null
+                };
+            }
+        }
 
     }
 }

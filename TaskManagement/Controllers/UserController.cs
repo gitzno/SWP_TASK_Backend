@@ -60,7 +60,7 @@ namespace TaskManagement.Controllers
 
         // POST api/<UserController>
         //[HttpPost]
-        //public IActionResult CreateUser([FromBody]UserDto userCreate)
+        //public IActionResult CreateUser([FromBody] UserDto userCreate)
         //{
         //    var userMap = _mapper.Map<User>(userCreate);
         //    var create = _userRepository.CreateUser(userMap);
@@ -90,6 +90,13 @@ namespace TaskManagement.Controllers
         {
             var result = _userRepository.Login(us);
             return Ok(result);
+        }
+        [HttpPut("Image/{userID}")]
+        public async Task<IActionResult> UpdateImage(IFormFile file, int userID)
+        {
+            var img = await _userRepository.UploadAsync(file);
+            var update = _userRepository.UpdateImage(userID, img.Uri.ToString());
+            return Ok(update);
         }
 
     }

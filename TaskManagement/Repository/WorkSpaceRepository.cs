@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskManagement.Dto;
 using TaskManagement.Interface;
 using TaskManagement.Models;
+using TaskManagement.Service;
 using TaskManagement.Utils;
 
 namespace TaskManagement.Repository
@@ -18,6 +19,7 @@ namespace TaskManagement.Repository
             _mapper = mapper;
         }
 
+
         public ResponseObject AddMemberIntoWorkspace(int workSpaceID, string nameUser, int roleID)
         {
             var user = _context.Users.Where(u => u.UserName == nameUser).FirstOrDefault();
@@ -26,30 +28,12 @@ namespace TaskManagement.Repository
             var _user = _context.UserWorkSpaceRoles
                 .Where(o => o.UserId == user.Id && o.WorkSpaceId == workSpace.Id).FirstOrDefault();
 
-            if (user == null)
+            if (user == null || role == null || workSpace == null)
             {
                 return new ResponseObject
                 {
-                    Status = "404",
-                    Message = "Not Found User",
-                    Data = null
-                };
-            }
-            if (role == null)
-            {
-                return new ResponseObject
-                {
-                    Status = "404",
-                    Message = "Not Found Role",
-                    Data = null
-                };
-            }
-            if (workSpace == null)
-            {
-                return new ResponseObject
-                {
-                    Status = "404",
-                    Message = "Not Found WorkSpace",
+                    Status = Status.NotFound ,
+                    Message = Message.NotFound,
                     Data = null
                 };
             }
@@ -57,8 +41,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "User already exists.",
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
                     Data = null
                 };
             }
@@ -69,23 +53,23 @@ namespace TaskManagement.Repository
                 WorkSpaceId = workSpaceID,
             };
             _context.UserWorkSpaceRoles.Add(userWorkSpace);
-
+            var userMap = _mapper.Map<UserDto>(user);
             if (Save())
             {
                 return new ResponseObject
                 {
-                    Status = "204",
-                    Message = "User added workSpace",
-                    Data = userWorkSpace
+                    Status = Status.Success,
+                    Message = Message.Success,
+                    Data = userMap
                 };
             }
             else
             {
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "Bad request",
-                    Data = userWorkSpace
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                    Data = null
                 };
             }
         }
@@ -95,21 +79,12 @@ namespace TaskManagement.Repository
             var user = _context.Users.Where(u => u.Id == userID).FirstOrDefault();
             var role = _context.Roles.Where(r => r.Id == roleID).FirstOrDefault();
 
-            if (user == null)
+            if (user == null|| role == null)
             {
                 return new ResponseObject
                 {
-                    Status = "404",
-                    Message = "Bad request",
-                    Data = null,
-                };
-            }
-            if (role == null)
-            {
-                return new ResponseObject
-                {
-                    Status = "404",
-                    Message = "Bad request",
+                    Status = Status.NotFound,
+                    Message = Message.NotFound,
                     Data = null,
                 };
             }
@@ -132,8 +107,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "200",
-                    Message = "Successfully",
+                    Status = Status.Success,
+                    Message = Message.Success,
                     Data = wsMap
                 };
             }
@@ -141,8 +116,9 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "Bad request"
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                    Data = null
                 };
             }
         } 
@@ -153,8 +129,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "404",
-                    Message = "Not found"
+                    Status = Status.NotFound,
+                    Message = Message.NotFound
                 };
             }
             _context.Remove(workSpace);
@@ -162,16 +138,16 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "204",
-                    Message = "Successfully"
+                    Status = Status.Success,
+                    Message = Message.Success
                 };
             }
             else
             {
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "Bad request"
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest
                 };
             }
         }
@@ -187,8 +163,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "200",
-                    Message = "Successfully",
+                    Status = Status.Success,
+                    Message = Message.Success,
                     Data = wsMap
                 };
             }
@@ -196,8 +172,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "Bad Request",
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
                     Data = null
                 };
             }
@@ -218,8 +194,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "404",
-                    Message = "Bad request",
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
                     Data = null
                 };
             }
@@ -228,15 +204,15 @@ namespace TaskManagement.Repository
             if (Save())
                 return new ResponseObject
                 {
-                    Status = "200",
-                    Message = "successfully",
+                    Status = Status.Success,
+                    Message = Message.Success,
                     Data = wsMap
                 };
             else
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "Bad request",
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
                     Data = null
                 };
         }
@@ -250,8 +226,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "200",
-                    Message = "Successfully",
+                    Status = Status.Success,
+                    Message = Message.Success,
                     Data = wsMap
                 };
             }
@@ -259,8 +235,8 @@ namespace TaskManagement.Repository
             {
                 return new ResponseObject
                 {
-                    Status = "400",
-                    Message = "Bad Request",
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
                     Data = null
                 };
             }

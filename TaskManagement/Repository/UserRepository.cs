@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
 using static System.Collections.Specialized.BitVector32;
 using SWP_Login.Utils;
+using TaskManagement.Service;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace TaskManagement.Repository
 {
@@ -17,29 +20,18 @@ namespace TaskManagement.Repository
     {
         private readonly TaskManagementContext _context;
         private readonly IMapper _mapper;
+        private readonly Cloudinary cloudinary;
 
-
-        public static class Status
-        {
-            public const string Success = "200";
-            public const string NotFound = "404";
-            public const string BadRequest = "400";
-            public const string Created = "201";
-            public const string NoContent = "204";
-        }
-
-        public static class Message
-        {
-            public const string Success = "Request processed successfully";
-            public const string NotFound = "Not found";
-            public const string BadRequest = "Bad request";
-            public const string Created = "Resource created successfully";
-            public const string NoContent = "No Content";
-        }
-        public UserRepository(TaskManagementContext context ,IMapper mapper)
+        public UserRepository(TaskManagementContext context ,IMapper mapper, IConfiguration configuration)
         {
             _context = context;
             _mapper = mapper;
+            Account account = new Account(
+              configuration["Cloudinary:CloudName"],
+              configuration["Cloudinary:ApiKey"],
+              configuration["Cloudinary:ApiSecret"]
+            );
+            cloudinary = new Cloudinary(account);
         }
 
        
@@ -182,6 +174,16 @@ namespace TaskManagement.Repository
 
         public ResponseObject CreateUser(User user)
         {
+            var _user = _context.Users.Any(o => o.UserName == user.UserName);
+            if (_user)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest + "user name already exists",
+                    Data = null
+                };
+            }
 
             string patternemail = @"^[a-za-z0-9._%+-]+@gmail.com$";
             if (user.Email != null && !Regex.IsMatch(user.Email, patternemail))
@@ -195,7 +197,7 @@ namespace TaskManagement.Repository
             }
 
             string patternphone = @"^0\d{9}$";
-            if (user.Email != null && !Regex.IsMatch(user.Email, patternphone))
+            if (user.Email != null && !Regex.IsMatch(user.Phone, patternphone))
             {
                 return new ResponseObject
                 {
@@ -330,6 +332,60 @@ namespace TaskManagement.Repository
                 {
                     Status = "400",
                     Message = "Login failed",
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<UploadResult> UploadAsync(IFormFile file)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    PublicId = Guid.NewGuid().ToString()
+                };
+
+                var result = await cloudinary.UploadAsync(uploadParams);
+
+                return result;
+            }
+        }
+
+        public ResponseObject UpdateImage(int userID, string file)
+        {
+            var user = _context.Users.Where(o => o.Id == userID).FirstOrDefault();
+            if (user != null)
+            {
+                user.Image = file;
+                _context.Update(user);
+                var userMap = _mapper.Map<UserDto>(user);
+                if (Save())
+                {
+                    return new ResponseObject
+                    {
+                        Status = Status.Success,
+                        Message = Message.Success,
+                        Data = userMap
+                    };
+                }
+                else
+                {
+                    return new ResponseObject
+                    {
+                        Status = Status.BadRequest,
+                        Message = Message.BadRequest,
+                        Data = null
+                    };
+                }
+            }
+            else
+            {
+                return new ResponseObject
+                {
+                    Status = Status.NotFound,
+                    Message = Message.NotFound,
                     Data = null
                 };
             }

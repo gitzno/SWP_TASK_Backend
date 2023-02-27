@@ -18,14 +18,17 @@ namespace TaskManagement.Controllers
         private readonly ITaskRepository _taskRepository;
         private readonly ISectionRepository _sectionRepository;
         private readonly IWorkSpaceRepository _workSpaceRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public TaskController(ITaskRepository taskRepository, IMapper mapper,ISectionRepository sectionRepository, IWorkSpaceRepository workSpaceRepository)
+        public TaskController(ITaskRepository taskRepository, IMapper mapper,ISectionRepository sectionRepository, IWorkSpaceRepository workSpaceRepository
+            , IUserRepository userRepository)
         {
             _taskRepository = taskRepository;
             _sectionRepository = sectionRepository;
             _mapper = mapper;
             _workSpaceRepository = workSpaceRepository;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
@@ -96,7 +99,28 @@ namespace TaskManagement.Controllers
             return Ok(_taskRepository.DeleteTask(task));
         }
 
-        
 
+
+        [HttpPut("Image/{taskID}")]
+        public async Task<IActionResult> UpdateImage(IFormFile file, int taskID)
+        {
+            var img = await _userRepository.UploadAsync(file);
+            var update = _taskRepository.UpdateImage(taskID, img.Uri.ToString());
+            return Ok(update);
+        }
+
+        [HttpPost("{taskID}/{userID}/{roleID}")]
+        public IActionResult AddMemberIntoTask(int taskID, int userID, int roleID)
+        {
+            var addMember = _taskRepository.AddMemberIntoTask(taskID, userID, roleID);
+            return Ok(addMember);
+        }
+
+        [HttpGet("GetTasksInSection")]
+        public IActionResult GetTasksInSection(int sectionId)
+        {
+            var task = _taskRepository.GetTasksInSection(sectionId);
+            return Ok(task);
+        }
     }
 }

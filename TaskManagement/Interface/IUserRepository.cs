@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using CloudinaryDotNet.Actions;
+using System.Threading.Tasks;
 using TaskManagement.Models;
 using TaskManagement.Utils;
 using static System.Collections.Specialized.BitVector32;
@@ -26,11 +27,8 @@ namespace TaskManagement.Interface
         bool UserExists(int userId);
         bool UserNameExists(string userName);
         bool Save();
-        
-
-
-
-
+        Task<UploadResult> UploadAsync(IFormFile file);
+        ResponseObject UpdateImage(int userID, string file);
 
     }
 }

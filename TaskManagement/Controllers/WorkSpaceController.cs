@@ -39,7 +39,7 @@ namespace TaskManagement.Controllers
             return Ok(workSpaces);
         }
 
-        [HttpGet("{id}")] // sẽ bỏ trong tương lai, để lại để test
+        [HttpGet("Id/{id}")] // sẽ bỏ trong tương lai, để lại để test
         public IActionResult GetWorkSpaceByID(int id)
         {
             var ws = _workSpaceRepository.GetWorkSpaceByID(id);
@@ -77,7 +77,7 @@ namespace TaskManagement.Controllers
 
 
 
-        [HttpPost("{workSpaceID}")]
+        [HttpPost("AddMember/{workSpaceID}")]
         // add thành viên vào trong ws
         public IActionResult AddMemberIntoWorkspace(int workSpaceID, string nameUser, int roleID)
         {

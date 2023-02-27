@@ -25,8 +25,8 @@ namespace TaskManagement.Interface
         bool Save();
 
         //ResponseObject TasksFilter(int workSpaceID, int? day, bool? done, int? numMenber);
-      
-
-
+        ResponseObject AddMemberIntoTask(int taskID, int userID, int roleID);
+        ResponseObject UpdateImage(int taskID, string file);
+        ResponseObject GetTasksInSection(int sectionId);//Lấy task trong section
     }
 }

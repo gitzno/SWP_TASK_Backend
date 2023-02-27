@@ -2,6 +2,7 @@
 using TaskManagement.Dto;
 using TaskManagement.Interface;
 using TaskManagement.Models;
+using TaskManagement.Service;
 using TaskManagement.Utils;
 //using static System.Collections.Specialized.BitVector32;
 
@@ -12,23 +13,6 @@ namespace TaskManagement.Repository
         private readonly TaskManagementContext _context;
         private readonly IMapper _mapper;
 
-        public static class Status
-        {
-            public const string Success = "200";
-            public const string NotFound = "404";
-            public const string BadRequest = "400";
-            public const string Created = "201";
-            public const string NoContent = "204";
-        }
-
-        public static class Message
-        {
-            public const string Success = "Request processed successfully";
-            public const string NotFound = "Not found";
-            public const string BadRequest = "Bad request";
-            public const string Created = "Resource created successfully";
-            public const string NoContent = "No Content";
-        }
         public SectionRepository(TaskManagementContext context,IMapper mapper)
         {
             _context = context;

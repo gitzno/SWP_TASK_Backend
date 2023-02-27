@@ -39,7 +39,7 @@ namespace TaskManagement
             builder.Services.AddScoped<ITaskRepository, TaskRepository>();
             builder.Services.AddDbContext<TaskManagementContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("TaskManagement"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
                 //options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
