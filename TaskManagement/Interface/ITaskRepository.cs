@@ -16,7 +16,7 @@ namespace TaskManagement.Interface
         ResponseObject GetTaskCountOfUser(int workspaceID, int userId);
 
         //Hàm này sẽ trả về số lượng nhiệm vụ đã hoàn thành của một user cụ thể.
-        ResponseObject GetUserCompletedTaskCount(int workspaceID, int userId, bool status);
+        ResponseObject GetTaskCountUserCompleted(int workspaceID, int userId, bool status);
         ResponseObject GetTasks();
         Task GetTaskByID(int taskId);
         ResponseObject CreateTask(int? sectionID, int userId, int roleId, Task task);
@@ -28,5 +28,8 @@ namespace TaskManagement.Interface
         ResponseObject AddMemberIntoTask(int taskID, int userID, int roleID);
         ResponseObject UpdateImage(int taskID, string file);
         ResponseObject GetTasksInSection(int sectionId);//Lấy task trong section
+
+        ResponseObject GetTasksRangeByTime(int userID, DateTime? timeFrom, DateTime? timeTo); // hien thi cac task có mốc thời gian nào đó trong khoảng đã chọn
+
     }
 }

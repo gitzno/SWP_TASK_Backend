@@ -180,6 +180,25 @@ namespace TaskManagement.Repository
         }
         public WorkSpace GetWorkSpaceByID(int workSpaceID)
         => _context.WorkSpaces.Where(o => o.Id == workSpaceID).FirstOrDefault();
+
+        public ResponseObject GetWorkSpacesByUser(int userID)
+        {
+            var _user = _context.Users.Where(o => o.Id == userID).FirstOrDefault();
+            if (_user == null)
+            {
+                return new ResponseObject { Status = Status.NotFound, Message = Message.NotFound };
+            }
+
+            var ws = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID).Select(o => o.WorkSpace).ToList();
+            var wsMap = _mapper.Map<List<WorkSpaceDto>>(ws);
+            return new ResponseObject
+            {
+                Status = Status.Success,
+                Message = Message.Success,
+                Data = wsMap
+            };
+        }
+
         public bool Save()
         {
             var saved = _context.SaveChanges();

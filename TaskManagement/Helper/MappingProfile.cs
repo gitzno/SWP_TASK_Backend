@@ -13,8 +13,7 @@ namespace TaskManagement.Helper
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
             CreateMap<Models.Task, TaskDto>().ReverseMap();
-
-
+            CreateMap<Comment, CommentDto>().ReverseMap();  
         }
     }
 }

@@ -14,7 +14,7 @@ namespace TaskManagement.Models
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string Describe { get; set; } = null!;
-        public DateTime CreatedTime { get; set; } = DateTime.Now;
+        public DateTime CreatedTime { get; set; }
 
         public virtual ICollection<Section> Sections { get; set; }
         public virtual ICollection<UserWorkSpaceRole> UserWorkSpaceRoles { get; set; }

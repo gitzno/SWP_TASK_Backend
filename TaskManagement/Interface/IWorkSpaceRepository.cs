@@ -7,6 +7,7 @@ namespace TaskManagement.Interface
     {
         ResponseObject WorkSpaces();
         WorkSpace GetWorkSpaceByID(int workSpaceID);
+        ResponseObject GetWorkSpacesByUser(int userID);   
         ResponseObject GetWorkSpaceByCreateTime(int? month, int year);
         ResponseObject AddMemberIntoWorkspace(int workSpaceID, string userName, int roleID);
         ResponseObject CreateWorkSpace(int userID, int roleID, WorkSpace workSpaceCreate);

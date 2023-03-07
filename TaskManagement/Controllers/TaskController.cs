@@ -60,9 +60,9 @@ namespace TaskManagement.Controllers
             return Ok(count);   
         }
         [HttpGet("NumberOfCompletedTask")]
-        public IActionResult GetUserCompletedTaskCount(int workspaceID, int userId, bool status)
+        public IActionResult GetTaskCountUserCompleted(int workspaceID, int userId, bool status)
         {
-            var task = _taskRepository.GetUserCompletedTaskCount(workspaceID, userId, status);
+            var task = _taskRepository.GetTaskCountUserCompleted(workspaceID, userId, status);
             return Ok(task);    
         }
 
@@ -120,6 +120,13 @@ namespace TaskManagement.Controllers
         public IActionResult GetTasksInSection(int sectionId)
         {
             var task = _taskRepository.GetTasksInSection(sectionId);
+            return Ok(task);
+        }
+
+        [HttpGet("GetTasksRangeByTime")]
+        public IActionResult GetTasksRangeByTime(int userID, DateTime? timeFrom, DateTime? timeTo)
+        {
+            var task = _taskRepository.GetTasksRangeByTime(userID, timeFrom, timeTo);   
             return Ok(task);
         }
     }

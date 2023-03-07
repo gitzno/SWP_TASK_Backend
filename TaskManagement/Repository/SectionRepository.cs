@@ -289,6 +289,95 @@ namespace TaskManagement.Repository
         public bool SectionExists(int sectionID)
         => _context.Sections.Any(s => s.Id == sectionID);
 
-       
+
+        public Section DuplicateSection(int sectionID)
+        {
+            var oldSection = _context.Sections.FirstOrDefault(s => s.Id == sectionID); // kiểm tra xem section
+
+            if (oldSection == null)
+            {
+                return null;
+            }
+
+            var newSection = new Section // add section mới vào db
+            {
+                Title = oldSection.Title + " (Copy)",
+                Describe = oldSection.Describe,
+                WorkSpaceId = oldSection.WorkSpaceId,
+                CreatedTime = DateTime.Now,
+                Status = oldSection.Status,
+            };
+
+
+
+            _context.Sections.Add(newSection);
+
+            if (Save())
+            {
+                return newSection;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public ResponseObject DuplicateTask(int newsectionID, int oldSectionID, int userID, int roleID) // 
+        {
+            //newsectionID: section đã được duplicated
+            //oldSectionID: section duplicated
+
+            var getTaskInSection = _context.Tasks.Where(o => o.SectionId == oldSectionID).ToList(); // lấy toàn bộ task trong section cũ 
+
+            List<Models.Task> listTaskInSection = new List<Models.Task>();
+            foreach (var task in getTaskInSection) // duplicate task 
+            {
+                listTaskInSection.Add(new Models.Task
+                {
+                    Title = task.Title + "(copy)",
+                    Describe = task.Describe,
+                    SectionId = newsectionID,
+                    Image = task.Image,
+                    CreatedTime = DateTime.Now,
+                    TaskTo = task.TaskTo,
+                    TaskFrom = task.TaskFrom,
+                    PinTask = task.PinTask,
+                    TagId = task.TagId,
+                    Attachment = task.Attachment,
+                    Status = task.Status,
+                });
+
+            }
+            _context.Tasks.AddRange(listTaskInSection);
+            _context.SaveChanges();
+
+            List<UserTaskRole> roles = new List<UserTaskRole>();
+            foreach (var item in listTaskInSection) // add role cho các task (ở đây chi duplicate người tạo)
+            {
+                roles.Add(new UserTaskRole
+                {
+                    TaskId = item.Id,
+                    RoleId = roleID,
+                    UserId = userID,
+                });
+            }
+            var userSection = new UserSectionRole // add role cho các section (ở đây chi duplicate người tạo)
+            {
+                SectionId = newsectionID,
+                UserId = userID,
+                RoleId = roleID,
+            };
+            _context.UserTaskRoles.AddRange(roles);
+            _context.UserSectionRoles.Add(userSection);
+            _context.SaveChanges();
+
+            return new ResponseObject
+            {
+                Status = Status.Success,
+                Message = Message.Success,
+                Data = null
+            };
+
+        }
     }
 }

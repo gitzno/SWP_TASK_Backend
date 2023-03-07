@@ -20,5 +20,8 @@ namespace TaskManagement.Interface
         bool SectionExists(int sectionID);
         bool Save();
 
+        Section DuplicateSection(int sectionID);
+        ResponseObject DuplicateTask(int newsectionID, int oldSectionID, int userID, int roleID);
+
     }
 }

@@ -37,6 +37,8 @@ namespace TaskManagement
             builder.Services.AddScoped<IWorkSpaceRepository, WorkSpaceRepository>();
             builder.Services.AddScoped<ISectionRepository, SectionRepository>();
             builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+            builder.Services.AddScoped<ICommentRepository, CommentRepository>();   
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();  
             builder.Services.AddDbContext<TaskManagementContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));

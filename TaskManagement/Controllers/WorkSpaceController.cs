@@ -26,6 +26,7 @@ namespace TaskManagement.Controllers
             _userRepository = userRepository;
             _mapper = mapper;
         }
+
         [JwtFilter]
         //[HttpGet, Authorize(Roles  = "Basic")]
         [HttpGet]
@@ -48,7 +49,14 @@ namespace TaskManagement.Controllers
             return Ok(ws);
         }
 
+        [HttpGet("user/{userId}")]
+        public IActionResult GetWorkSpaceByUser(int userId) 
+        {
+            var ws = _workSpaceRepository.GetWorkSpacesByUser(userId);
+            return Ok(ws);
+        }
 
+        [JwtFilter]
         [HttpPost]
         public IActionResult CreateWorkSpace([FromQuery]int userID, [FromQuery] int roleID,
             [FromBody] WorkSpaceDto workSpaceCreate)

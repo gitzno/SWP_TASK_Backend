@@ -125,7 +125,7 @@ namespace TaskManagement.Repository
             }
         }
 
-        public ResponseObject GetUserCompletedTaskCount(int workspaceID, int userId, bool status)
+        public ResponseObject GetTaskCountUserCompleted(int workspaceID, int userId, bool status)
         {
             var numberOfTaskDone = _context.UserTaskRoles.Where(utr => utr.UserId == userId && utr.RoleId == 2)
             .Select(t => t.Task).Where(t => t.Section.WorkSpaceId == workspaceID && t.Status == status).ToList();
@@ -155,6 +155,7 @@ namespace TaskManagement.Repository
         {
             var user = _context.Users.SingleOrDefault(o => o.Id == userId);
             var role = _context.Roles.SingleOrDefault(o => o.Id == roleId);
+            var section = _context.Sections.SingleOrDefault(o => o.Id == sectionID);
             if (user == null|| role == null)
                 return new ResponseObject
                 {
@@ -172,8 +173,19 @@ namespace TaskManagement.Repository
                 Role = role,
                 Task = task
             };
+            var notifi = new Notification
+            {
+                TaskId = task.Id,
+                UserActiveId = userId,
+                UserPassiveId = null,
+                Describe = user.Name + " đã thêm " + task.Title + " vào danh sách " + section.Title,
+                Task = task,
+            };
+            _context.Add(notifi);
             _context.Add(userTaskRole);
             _context.Tasks.Add(task);
+
+            
             var taskMap = _mapper.Map<TaskDto>(task);
             if (Save())
                 return new ResponseObject
@@ -398,5 +410,28 @@ namespace TaskManagement.Repository
             }
         }
 
+        public ResponseObject GetTasksRangeByTime(int userID, DateTime? timeFrom, DateTime? timeTo)
+        {
+            //var task = _context.UserTaskRoles.Where(o => o.UserId == userID)
+            //    .Select(o => o.Task).Where(o => (o.TaskFrom >= timeFrom o.TaskFrom ) )
+
+            //if (task != null)
+            //{
+                return new ResponseObject
+                {
+                    Status = Status.Success,
+                    Message = Message.Success,
+                    //Data = task
+                };
+            //}
+            //else
+            //{
+            //    return new ResponseObject
+            //    {
+            //        Status = Status.NotFound,
+            //        Message = Message.NotFound,
+            //    };
+            //}
+        }
     }
 }

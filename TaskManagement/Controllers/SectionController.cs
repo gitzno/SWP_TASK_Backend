@@ -105,8 +105,14 @@ namespace TaskManagement.Controllers
             
         }
 
+        [HttpPost("Duplicate")]
+        public IActionResult Duplicate(int sectionID, int userID, int roleID)
+        {
+            var section = _sectionRepository.DuplicateSection(sectionID);
+            var task = _sectionRepository.DuplicateTask(section.Id, sectionID, userID, roleID);
+            return Ok(task);
+        }
 
-        
-      
+
     }
 }

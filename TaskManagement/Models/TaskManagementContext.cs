@@ -17,6 +17,7 @@ namespace TaskManagement.Models
         }
 
         public virtual DbSet<Comment> Comments { get; set; } = null!;
+        public virtual DbSet<Notification> Notifications { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Section> Sections { get; set; } = null!;
         public virtual DbSet<Tag> Tags { get; set; } = null!;
@@ -31,12 +32,8 @@ namespace TaskManagement.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-                           .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                           .AddJsonFile("appsettings.json")
-                           .Build();
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TaskManagement"));
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Data Source=DESKTOP-GBO8FJS;Initial Catalog=TaskManagement;User ID=sa;Password=123;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             }
         }
 
@@ -64,6 +61,26 @@ namespace TaskManagement.Models
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Comment_User");
+            });
+
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.ToTable("Notification");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.CreateTime).HasColumnType("datetime");
+
+                entity.Property(e => e.TaskId).HasColumnName("TaskID");
+
+                entity.Property(e => e.UserActiveId).HasColumnName("UserActiveID");
+
+                entity.Property(e => e.UserPassiveId).HasColumnName("UserPassiveID");
+
+                entity.HasOne(d => d.Task)
+                    .WithMany(p => p.Notifications)
+                    .HasForeignKey(d => d.TaskId)
+                    .HasConstraintName("FK_Notification_Task");
             });
 
             modelBuilder.Entity<Role>(entity =>

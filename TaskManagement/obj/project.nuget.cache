@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "cEen5M5IClT/oDAJ+eUHzUwvW3WqQm3H414OM1nDQ7GVZIg+71lWXbuUdA/QKBrDh7PZZl+sByOTaQfxkTlVtQ==",
+  "dgSpecHash": "XiRW+PCAfW5YF3C3D7FkHmmf9WUfRmtrs4m9HS08rTYcQ6cWqPN0JNafDFGgN+PHtdOd7xbJwsLU38GlLdAPHQ==",
   "success": true,
-  "projectFilePath": "E:\\ky 5\\SWP391\\TU\\SWP_SOFTWARE_PERSONAL_TASK_MANAGEMENT\\TaskManagement\\TaskManagement.csproj",
+  "projectFilePath": "E:\\ky 5\\SWP391\\swpDUc - Copy\\SWP_SOFTWARE_PERSONAL_TASK_MANAGEMENT\\TaskManagement\\TaskManagement.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ADMIN\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\ADMIN\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.0\\automapper.extensions.microsoft.dependencyinjection.12.0.0.nupkg.sha512",

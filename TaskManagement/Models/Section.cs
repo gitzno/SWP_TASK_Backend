@@ -14,7 +14,7 @@ namespace TaskManagement.Models
         public int Id { get; set; }
         public int WorkSpaceId { get; set; }
         public string Title { get; set; } = null!;
-        public string Describe { get; set; } = null!;
+        public string? Describe { get; set; }
         public DateTime CreatedTime { get; set; } = DateTime.Now;
         public bool Status { get; set; }
 
