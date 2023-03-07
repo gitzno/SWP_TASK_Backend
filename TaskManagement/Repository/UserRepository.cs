@@ -308,6 +308,15 @@ namespace TaskManagement.Repository
 
         public ResponseObject Login(User user)
         {
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] inputBytes = Encoding.ASCII.GetBytes(user.Password);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+                string hashedPassword = BitConverter.ToString(hashBytes).Replace("-", "").Substring(0, 16);
+                user.Password = hashedPassword;
+            }
+
+
             var accDB = _context.Users
                     .Where(u => u.UserName == user.UserName && u.Password == user.Password)
                     .FirstOrDefault();
@@ -321,7 +330,8 @@ namespace TaskManagement.Repository
                     Data =
                     new
                     {
-                        username = user.UserName,
+                        username = accDB.UserName,
+                        usernameID = accDB.Id,
                         token = GenerateToken.GenerateMyToken(user)
                     }
                 };

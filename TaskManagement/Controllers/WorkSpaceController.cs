@@ -26,7 +26,7 @@ namespace TaskManagement.Controllers
             _userRepository = userRepository;
             _mapper = mapper;
         }
-        [JwtFilter]
+        //[JwtFilter]
         //[HttpGet, Authorize(Roles  = "Basic")]
         [HttpGet]
         public IActionResult WorkSpaces()
