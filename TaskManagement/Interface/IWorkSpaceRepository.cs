@@ -14,6 +14,6 @@ namespace TaskManagement.Interface
         ResponseObject DeleteWorkSpace(WorkSpace workSpace);
         bool Save();
 
-
+        ResponseObject GetWorkSpacesByUser(int userID);
     }
 }
