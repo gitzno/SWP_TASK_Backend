@@ -39,6 +39,13 @@ namespace TaskManagement.Controllers
             return Ok(workSpaces);
         }
 
+[HttpGet("user/{userId}")]
+        public IActionResult GetWorkSpaceByUser(int userId)
+        {
+            var ws = _workSpaceRepository.GetWorkSpacesByUser(userId);
+            return Ok(ws);
+        }
+        
         [HttpGet("Id/{id}")] // sẽ bỏ trong tương lai, để lại để test
         public IActionResult GetWorkSpaceByID(int id)
         {
