@@ -27,7 +27,6 @@ namespace TaskManagement.Controllers
             _mapper = mapper;
         }
 
-        [JwtFilter]
         //[HttpGet, Authorize(Roles  = "Basic")]
         [HttpGet]
         public IActionResult WorkSpaces()

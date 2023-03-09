@@ -132,6 +132,8 @@ namespace TaskManagement.Repository
             var user = _context.Users.Where(u => u.Id == userID).FirstOrDefault();
             var role = _context.Roles.FirstOrDefault(r => r.Id == roleID);
             var section = _context.Sections.FirstOrDefault(s => s.Id== sectionID);
+            var _user = _context.UserSectionRoles.Where(o => o.UserId== userID && o.SectionId == sectionID).FirstOrDefault();
+
 
             if (section == null|| user == null || role == null)
             {
@@ -140,6 +142,14 @@ namespace TaskManagement.Repository
                     Status = Status.NotFound,
                     Message = Message.NotFound,
                     Data = null,
+                };
+            }
+            if (_user!= null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
                 };
             }
             var roleSection = new UserSectionRole

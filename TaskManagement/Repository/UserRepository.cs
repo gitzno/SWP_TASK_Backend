@@ -13,6 +13,7 @@ using SWP_Login.Utils;
 using TaskManagement.Service;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using System.Threading.Tasks;
 
 namespace TaskManagement.Repository
 {
@@ -90,17 +91,18 @@ namespace TaskManagement.Repository
             }
         }
 
-        public ResponseObject GetWorkSpacesByUser(int userID)
+        public ResponseObject GetUsersJoinWorkSpace(int workSpaceID)
         {
-            var workspaces = _context.UserWorkSpaceRoles.Where(u => u.UserId == userID).Select(s => s.WorkSpace).ToList();
-            var workspacesMap = _mapper.Map<List<WorkSpaceDto>>(workspaces);
-            if (workspaces != null)
+            var users = _context.UserWorkSpaceRoles.Where(o => o.WorkSpaceId == workSpaceID).Select(o => o.User).Distinct().ToList();
+
+            var usersMap = _mapper.Map<List<UserDto>>(users);
+            if (users != null)
             {
                 return new ResponseObject
                 {
                     Status = Status.Success,
                     Message = Message.Success,
-                    Data = workspacesMap
+                    Data = usersMap
                 };
             }
             else
@@ -116,10 +118,7 @@ namespace TaskManagement.Repository
 
         public ResponseObject GetUsersJoinSection(int sectionID)
         {
-            var users = from u in _context.Users
-                        join usr in _context.UserSectionRoles on u.Id equals usr.UserId
-                        where usr.SectionId == sectionID
-                        select u;
+            var users = _context.UserSectionRoles.Where(o => o.SectionId == sectionID).Select(o => o.User).Distinct().ToList();
             var usersMap = _mapper.Map<List<UserDto>>(users);
             if (users != null)
             {
@@ -145,10 +144,7 @@ namespace TaskManagement.Repository
 
         public ResponseObject GetUsersJoinTask(int taskID)
         {
-            var users = from u in _context.Users
-                        join utr in _context.UserTaskRoles on u.Id equals utr.UserId
-                        where utr.TaskId == taskID
-                        select u;
+            var users = _context.UserTaskRoles.Where(o => o.TaskId == taskID && o.RoleId == 2).Select(o => o.User).Distinct().ToList();
             var usersMap = _mapper.Map<List<UserDto>>(users);
             if (users != null)
             {

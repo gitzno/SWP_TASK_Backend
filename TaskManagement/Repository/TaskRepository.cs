@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+using System.Collections.ObjectModel;
 using TaskManagement.Dto;
 using TaskManagement.Interface;
 using TaskManagement.Models;
@@ -50,8 +51,19 @@ namespace TaskManagement.Repository
 
         public ResponseObject GetAssignedTasksForUser(int workspaceID, int userID)
         {
-            var tasks = _context.UserTaskRoles.Where(utr => utr.UserId == userID && utr.RoleId == 2)
-            .Select(t => t.Task).Where(t => t.Section.WorkSpaceId == workspaceID).ToList();
+
+            ICollection<Models.Task> tasks = new Collection<Models.Task>();
+            
+            if (workspaceID != 0)
+            {
+                 tasks = _context.UserTaskRoles.Where(utr => utr.UserId == userID && utr.RoleId == 2)
+                    .Select(t => t.Task).Where(o => o.Section.WorkSpace.Id == workspaceID).ToList();
+            } else
+            {
+                 tasks = _context.UserTaskRoles.Where(utr => utr.UserId == userID && (utr.RoleId == 2 || utr.RoleId == 1))
+                    .Select(t => t.Task).Distinct().ToList();
+            }
+            
             var tasksMap = _mapper.Map<List<TaskDto>>(tasks);
             if (tasks != null)
             {
@@ -173,12 +185,16 @@ namespace TaskManagement.Repository
                 Role = role,
                 Task = task
             };
+            string noti = user.Name + " đã thêm " + task.Title;
+            if (section != null)
+                noti += " vào danh sách "+section.Title;
+
             var notifi = new Notification
             {
                 TaskId = task.Id,
                 UserActiveId = userId,
                 UserPassiveId = null,
-                Describe = user.Name + " đã thêm " + task.Title + " vào danh sách " + section.Title,
+                Describe = noti,
                 Task = task,
             };
             _context.Add(notifi);
@@ -309,14 +325,21 @@ namespace TaskManagement.Repository
             var task = _context.Tasks.Where(o => o.Id == taskID).FirstOrDefault();
             var user = _context.Users.Where(o => o.Id == userID).FirstOrDefault();
             var role = _context.Roles.Where(o => o.Id == roleID).FirstOrDefault();
-
+            var _user = _context.UserTaskRoles.Where(o => o.UserId == userID && o.TaskId == taskID).FirstOrDefault(); 
+            if (_user != null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                };
+            }
             if (user == null || task == null || role == null)
             {
                 return new ResponseObject
                 {
                     Status = Status.BadRequest,
                     Message = Message.BadRequest,
-                    Data = null,
                 };
             }
 

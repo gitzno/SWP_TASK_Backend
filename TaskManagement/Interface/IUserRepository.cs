@@ -12,8 +12,8 @@ namespace TaskManagement.Interface
         ResponseObject GetUsers();
         User GetUserByID(int userId);
 
-        ResponseObject GetWorkSpacesByUser(int userID);
         ResponseObject GetUserByUserName(string userName);
+        ResponseObject GetUsersJoinWorkSpace(int workSpaceID);
         //Hàm này sẽ trả về danh sách các user tham gia vào một section cụ thể.
         ResponseObject GetUsersJoinSection(int sectionID);
 

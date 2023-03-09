@@ -42,6 +42,8 @@ namespace TaskManagement.Controllers
         [HttpGet("AssignedTasks/{userID}")]
         public IActionResult GetAssignedTasksForUser(int workspaceID,int userID)
         {
+            if (workspaceID == null)
+                workspaceID = 0;
             var tasks = _taskRepository.GetAssignedTasksForUser(workspaceID,userID);
             return Ok(tasks);
         }

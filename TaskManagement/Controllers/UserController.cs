@@ -28,7 +28,6 @@ namespace TaskManagement.Controllers
 
         // GET: api/<UserController>
         [HttpGet]
-        
         public IActionResult GetUsers()
         {
             var users = _userRepository.GetUsers();
@@ -42,7 +41,12 @@ namespace TaskManagement.Controllers
             return Ok(user);
         }
 
-       
+        [HttpGet("Workspace/{workspaceID}")]
+        public IActionResult GetUsersJoinWorkSpace(int workspaceID)
+        {
+            var users = _userRepository.GetUsersJoinWorkSpace(workspaceID);
+            return Ok(users);
+        }
 
         [HttpGet("Section/{sectionID}")]
         public IActionResult GetUsersJoinSection(int sectionID)
