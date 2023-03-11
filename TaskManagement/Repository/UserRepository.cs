@@ -426,5 +426,67 @@ namespace TaskManagement.Repository
                 return new ResponseObject { Status = Status.NotFound, Message = Message.NotFound +" user"};
             }
         }
+
+        public ResponseObject DeleteUserWorkSpace(int workSpaceID, int userIdDeleted, int userAdminId)
+        {
+            // khong the tu xoa chinh minh
+            if (userAdminId == userIdDeleted)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest + " cannot deleted yourself",
+                };
+            }
+            // tim ra nguoi bi xoa trong workSpace
+            var userDeleteWorkSpace = _context.UserWorkSpaceRoles
+                .SingleOrDefault(o => o.UserId == userIdDeleted && o.WorkSpaceId == workSpaceID && o.RoleId != 1);
+            if (userDeleteWorkSpace == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.NotFound,
+                    Message = Message.NotFound +" user in workSpace",
+                };
+            }
+            var userDeleteTask = _context.UserTaskRoles
+                .Where(o => o.Task.Section.WorkSpaceId == workSpaceID && o.UserId == userIdDeleted).ToList();
+            if (userDeleteTask != null)
+            {
+                _context.UserTaskRoles.RemoveRange(userDeleteTask);
+            }
+
+
+            // tim ra xem co phai la nguoi tao khong
+            var userAdmin = _context.UserWorkSpaceRoles
+                .SingleOrDefault(o => o.UserId == userAdminId && o.WorkSpaceId == workSpaceID && o.RoleId == 1);
+            if (userAdmin == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest + " not admin",
+                };
+            }
+
+
+            _context.UserWorkSpaceRoles.Remove(userDeleteWorkSpace); // xoa trong ws
+            if (Save())
+            {
+                return new ResponseObject
+                {
+                    Status = Status.Success,
+                    Message = Message.Success,
+                };
+            }
+            else
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                };
+            }
+        }
     }
 }

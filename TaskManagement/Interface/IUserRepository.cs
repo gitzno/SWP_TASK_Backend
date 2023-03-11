@@ -24,13 +24,14 @@ namespace TaskManagement.Interface
         ResponseObject CreateUser(User user);
         ResponseObject UpdateUser(User user);
         ResponseObject DeleteUser(User user);
-
         ResponseObject Login(User user);
         bool UserExists(int userId);
         bool UserNameExists(string userName);
         bool Save();
         Task<UploadResult> UploadAsync(IFormFile file);
         ResponseObject UpdateImage(int userID, string file);
+
+        ResponseObject DeleteUserWorkSpace(int workSpaceID, int userIdDeleted, int userAdminId);
 
     }
 }

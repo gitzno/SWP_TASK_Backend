@@ -109,5 +109,12 @@ namespace TaskManagement.Controllers
             return Ok(update);
         }
 
+        [HttpDelete("DeleteUserWorkSpace")]
+        public IActionResult DeleteUserWorkSpace(int workSpaceID, int userIdDeleted, int userAdminId) 
+        {
+            var delete = _userRepository.DeleteUserWorkSpace(workSpaceID, userIdDeleted, userAdminId);
+            return Ok(delete);  
+        }
+
     }
 }
