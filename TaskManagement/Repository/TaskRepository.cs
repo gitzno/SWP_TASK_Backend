@@ -282,15 +282,9 @@ namespace TaskManagement.Repository
         public ResponseObject UpdateTask(Models.Task task, int userID)
         {
             List<Notification> noti = new List<Notification>();
-            var _user = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID).Select(o => o.User).FirstOrDefault();
-            if (_user == null)
-            {
-                return new ResponseObject
-                {
-                    Status = Status.NotFound,
-                    Message = Message.NotFound + " user not exists in workSpace",
-                };
-            }
+            var _userWorkSpace = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID || o.RoleId == 1).Select(o => o.User).FirstOrDefault(); // tim ra th tao ws 
+            
+
             var _task = _context.Tasks.AsNoTracking().SingleOrDefault(o => o.Id == task.Id);
             if (_task == null)
             {
@@ -308,7 +302,7 @@ namespace TaskManagement.Repository
                     {
                         TaskId = task.Id,
                         UserActiveId = userID,
-                        Describe = _user.UserName + " đã thay đổi tiêu đề thành " + task.Title.ToUpper(),
+                        Describe = _userWorkSpace.UserName + " đã thay đổi tiêu đề thành " + task.Title.ToUpper(),
                     });
                 }
                 if (!_task.Describe.Equals(task.Describe))
@@ -317,7 +311,7 @@ namespace TaskManagement.Repository
                     {
                         TaskId = task.Id,
                         UserActiveId = userID,
-                        Describe = _user.UserName + " đã thay đổi mô tả thành \"" + task.Describe + "\"",
+                        Describe = _userWorkSpace.UserName + " đã thay đổi mô tả thành \"" + task.Describe + "\"",
                     });
                 }
                 if (_task.Status != task.Status)
@@ -328,7 +322,7 @@ namespace TaskManagement.Repository
                     {
                         TaskId = task.Id,
                         UserActiveId = userID,
-                        Describe = _user.UserName + " đã đánh dấu " + task.Title.ToUpper() + " là: " + msgStatus,
+                        Describe = _userWorkSpace.UserName + " đã đánh dấu " + task.Title.ToUpper() + " là: " + msgStatus,
                     });
                 }
                 if (_task.TaskFrom != task.TaskFrom)
@@ -339,7 +333,7 @@ namespace TaskManagement.Repository
                         {
                             TaskId = task.Id,
                             UserActiveId = userID,
-                            Describe = _user.UserName + " đã thêm ngày bắt đầu là " + task.TaskFrom,
+                            Describe = _userWorkSpace.UserName + " đã thêm ngày bắt đầu là " + task.TaskFrom,
                         });
                     }
                     else
@@ -348,7 +342,7 @@ namespace TaskManagement.Repository
                         {
                             TaskId = task.Id,
                             UserActiveId = userID,
-                            Describe = _user.UserName + " đã sửa ngày bắt đầu thành " + task.TaskFrom,
+                            Describe = _userWorkSpace.UserName + " đã sửa ngày bắt đầu thành " + task.TaskFrom,
                         });
                     }
                 }
@@ -360,7 +354,7 @@ namespace TaskManagement.Repository
                         {
                             TaskId = task.Id,
                             UserActiveId = userID,
-                            Describe = _user.UserName + " đã thêm ngày hết hạn là " + task.TaskTo,
+                            Describe = _userWorkSpace.UserName + " đã thêm ngày hết hạn là " + task.TaskTo,
                         });
                     }
                     else
@@ -369,7 +363,7 @@ namespace TaskManagement.Repository
                         {
                             TaskId = task.Id,
                             UserActiveId = userID,
-                            Describe = _user.UserName + " đã sửa ngày hết hạn thành " + task.TaskTo,
+                            Describe = _userWorkSpace.UserName + " đã sửa ngày hết hạn thành " + task.TaskTo,
                         });
                     }
                 }
@@ -672,5 +666,75 @@ namespace TaskManagement.Repository
                 Data = new {section = section.Title, workSpace = workSpace.Name, user= userCreateTask.UserName},
             };
         }
+
+        public ResponseObject UpdateStatusTask(int taskID, int userID, bool status)
+        {
+            var task = _context.UserTaskRoles.Where(o => o.UserId == userID && o.TaskId == taskID && o.RoleId != 1).SingleOrDefault();
+
+            if (task == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest
+                };
+            }
+
+            task.Status = status;
+            _context.Update(task);
+            if (Save())
+            {
+                return new ResponseObject
+                {
+                    Status = Status.Success,
+                    Message = Message.Success,
+                    Data = task
+                };
+            }
+            else
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                };
+            }
+
+        }
+
+        public ResponseObject UpdatePinTask(int taskID, int userID, bool status)
+        {
+            var task = _context.UserTaskRoles.Where(o => o.UserId == userID && o.TaskId == taskID && o.RoleId != 1).SingleOrDefault();
+
+            if (task == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest
+                };
+            }
+
+            task.PinTask = status;
+            _context.Update(task);
+            if (Save())
+            {
+                return new ResponseObject
+                {
+                    Status = Status.Success,
+                    Message = Message.Success,
+                    Data = task
+                };
+            }
+            else
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                };
+            }
+        }
+
     }
 }

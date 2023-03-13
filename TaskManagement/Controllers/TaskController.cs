@@ -131,5 +131,19 @@ namespace TaskManagement.Controllers
             var info = _taskRepository.GetInforTask(taskID);
             return Ok(info);
         }
+
+        [HttpPut("UpdateStatusTask")]
+        public IActionResult UpdateStatusTask(int taskID, int userID, bool status)
+        {
+            var task = _taskRepository.UpdateStatusTask(taskID, userID, status);
+            return Ok(task);
+        }
+
+        [HttpPut("UpdatePinTask")]
+        public IActionResult UpdatePinTask(int taskID, int userID, bool status)
+        {
+            var task = _taskRepository.UpdatePinTask(taskID, userID, status);
+            return Ok(task);
+        }
     }
 }

@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TaskManagement.Models
+namespace TaskManagement.Models;
+
+public partial class WorkSpace
 {
-    public partial class WorkSpace
-    {
-        public WorkSpace()
-        {
-            Sections = new HashSet<Section>();
-            UserWorkSpaceRoles = new HashSet<UserWorkSpaceRole>();
-        }
+    public int Id { get; set; }
 
-        public int Id { get; set; }
-        public string Name { get; set; } = null!;
-        public string Describe { get; set; } = null!;
-        public DateTime CreatedTime { get; set; }
+    public string Name { get; set; } = null!;
 
-        public virtual ICollection<Section> Sections { get; set; }
-        public virtual ICollection<UserWorkSpaceRole> UserWorkSpaceRoles { get; set; }
-    }
+    public string Describe { get; set; } = null!;
+
+    public DateTime CreatedTime { get; set; } = DateTime.Now;
+
+    public virtual ICollection<Section> Sections { get; } = new List<Section>();
+
+    public virtual ICollection<UserWorkSpaceRole> UserWorkSpaceRoles { get; } = new List<UserWorkSpaceRole>();
 }

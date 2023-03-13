@@ -30,6 +30,9 @@ namespace TaskManagement.Interface
         ResponseObject GetTasksInSection(int sectionId);//Lấy task trong section
         ResponseObject GetInforTask(int taskID);
         ResponseObject GetTasksRangeByTime(int userID, DateTime? timeFrom, DateTime? timeTo); // hien thi cac task có mốc thời gian nào đó trong khoảng đã chọn
-        ResponseObject UpdateStatusTask(int userID, bool status, int taskID)
+        ResponseObject UpdateStatusTask(int taskID, int userID, bool status);
+
+        ResponseObject UpdatePinTask(int taskID, int userID, bool status);
+
     }
 }
