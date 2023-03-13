@@ -32,7 +32,10 @@ namespace TaskManagement.Repository
         {
             var tasks = _context.Tasks.ToList();
             var taskMap = _mapper.Map<List<TaskDto>>(tasks);
-
+            foreach (var item in taskMap)
+            {
+                item.Info = GetInforTask(item.Id);
+            }
             if (tasks == null)
                 return new ResponseObject
                 {
@@ -74,6 +77,10 @@ namespace TaskManagement.Repository
             }
 
             var tasksMap = _mapper.Map<List<TaskDto>>(tasks);
+            foreach (var item in tasksMap)
+            {
+                item.Info = GetInforTask(item.Id);
+            }
             if (tasks != null)
             {
                 return new ResponseObject
@@ -109,14 +116,18 @@ namespace TaskManagement.Repository
             .Select(t => t.Task).Where(t => t.Section.WorkSpaceId == workspaceID).ToList();
 
             var tasks = tasksAll.Except(tasksAssign);
-            var tasksMap = _mapper.Map<List<TaskDto>>(tasks);
+            var taskMap = _mapper.Map<List<TaskDto>>(tasks);
+            foreach (var item in taskMap)
+            {
+                item.Info = GetInforTask(item.Id);
+            }
             if (tasks != null)
             {
                 return new ResponseObject
                 {
                     Status = Status.Success,
                     Message = Message.Success,
-                    Data = tasksMap
+                    Data = taskMap
                 };
             }
             else
@@ -194,7 +205,11 @@ namespace TaskManagement.Repository
             }
             var numberOfTaskDone = _context.UserTaskRoles.Where(utr => utr.UserId == userId && utr.RoleId == 2)
             .Select(t => t.Task).Where(t => t.Section.WorkSpaceId == workspaceID && t.Status == status).ToList();
-
+            var taskMap = _mapper.Map<List<TaskDto>>(numberOfTaskDone);
+            foreach (var item in taskMap)
+            {
+                item.Info = GetInforTask(item.Id);
+            }
             if (numberOfTaskDone == null)
             {
                 return new ResponseObject
@@ -209,7 +224,7 @@ namespace TaskManagement.Repository
                 {
                     Status = Status.Success,
                     Message = Message.Success,
-                    Data = numberOfTaskDone,
+                    Data = taskMap,
                 };
             }
         }
@@ -260,6 +275,8 @@ namespace TaskManagement.Repository
 
 
             var taskMap = _mapper.Map<TaskDto>(task);
+            
+                
             if (Save())
                 return new ResponseObject
                 {
@@ -282,114 +299,135 @@ namespace TaskManagement.Repository
         public ResponseObject UpdateTask(Models.Task task, int userID)
         {
             List<Notification> noti = new List<Notification>();
-            var _userWorkSpace = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID || o.RoleId == 1).Select(o => o.User).FirstOrDefault(); // tim ra th tao ws 
-            
+            var _user = _context.Users.SingleOrDefault(o => o.Id == userID);
 
-            var _task = _context.Tasks.AsNoTracking().SingleOrDefault(o => o.Id == task.Id);
-            if (_task == null)
+            var section = _context.Sections.Where(o => o.Id == task.SectionId).FirstOrDefault();
+            int wsID = 0;
+            if (section != null)
             {
-                return new ResponseObject
-                {
-                    Status = Status.NotFound,
-                    Message = Message.NotFound + " task",
-                };
+                var ws = _context.WorkSpaces.Where(o => o.Id == section.WorkSpaceId).FirstOrDefault();
+                wsID = ws.Id;
+            // tim ra th tao ws 
             }
-            else
-            {
-                if (!_task.Title.Equals(task.Title))
-                {
-                    noti.Add(new Notification
-                    {
-                        TaskId = task.Id,
-                        UserActiveId = userID,
-                        Describe = _userWorkSpace.UserName + " đã thay đổi tiêu đề thành " + task.Title.ToUpper(),
-                    });
-                }
-                if (!_task.Describe.Equals(task.Describe))
-                {
-                    noti.Add(new Notification
-                    {
-                        TaskId = task.Id,
-                        UserActiveId = userID,
-                        Describe = _userWorkSpace.UserName + " đã thay đổi mô tả thành \"" + task.Describe + "\"",
-                    });
-                }
-                if (_task.Status != task.Status)
-                {
-                    string msgStatus = task.Status ? "đã hoàn thành" : "chưa hoàn thành";
+                var _userWorkSpace = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID && o.RoleId == 1 && o.WorkSpaceId == wsID).FirstOrDefault();
+            // tim ra th tao task 
+            var _userCreateTask = _context.UserTaskRoles.Where(o => o.UserId == userID && o.RoleId == 1 && o.TaskId == task.Id).FirstOrDefault();
 
-                    noti.Add(new Notification
-                    {
-                        TaskId = task.Id,
-                        UserActiveId = userID,
-                        Describe = _userWorkSpace.UserName + " đã đánh dấu " + task.Title.ToUpper() + " là: " + msgStatus,
-                    });
-                }
-                if (_task.TaskFrom != task.TaskFrom)
+            if (_userWorkSpace != null || _userCreateTask != null)
+            {
+
+                var _task = _context.Tasks.AsNoTracking().SingleOrDefault(o => o.Id == task.Id); // task old 
+                if (_task == null)
                 {
-                    if (_task.TaskFrom == null)
+                    return new ResponseObject
+                    {
+                        Status = Status.NotFound,
+                        Message = Message.NotFound + " task",
+                    };
+                }
+                else
+                {
+                    if (!_task.Title.Equals(task.Title))
                     {
                         noti.Add(new Notification
                         {
                             TaskId = task.Id,
                             UserActiveId = userID,
-                            Describe = _userWorkSpace.UserName + " đã thêm ngày bắt đầu là " + task.TaskFrom,
+                            Describe = _user.UserName + " đã thay đổi tiêu đề thành " + task.Title.ToUpper(),
                         });
                     }
-                    else
+                    if (!_task.Describe.Equals(task.Describe))
                     {
                         noti.Add(new Notification
                         {
                             TaskId = task.Id,
                             UserActiveId = userID,
-                            Describe = _userWorkSpace.UserName + " đã sửa ngày bắt đầu thành " + task.TaskFrom,
+                            Describe = _user.UserName + " đã thay đổi mô tả thành \"" + task.Describe + "\"",
                         });
                     }
-                }
-                if (_task.TaskTo != task.TaskTo)
-                {
-                    if (_task.TaskTo == null)
+                    if (_task.Status != task.Status)
                     {
-                        noti.Add(new Notification
-                        {
-                            TaskId = task.Id,
-                            UserActiveId = userID,
-                            Describe = _userWorkSpace.UserName + " đã thêm ngày hết hạn là " + task.TaskTo,
-                        });
-                    }
-                    else
-                    {
-                        noti.Add(new Notification
-                        {
-                            TaskId = task.Id,
-                            UserActiveId = userID,
-                            Describe = _userWorkSpace.UserName + " đã sửa ngày hết hạn thành " + task.TaskTo,
-                        });
-                    }
-                }
+                        string msgStatus = task.Status ? "đã hoàn thành" : "chưa hoàn thành";
 
-            }
-            _context.Notifications.AddRange(noti.ToArray());
-            _context.Tasks.Update(task);
-            var taskMap = _mapper.Map<TaskDto>(task);
+                        noti.Add(new Notification
+                        {
+                            TaskId = task.Id,
+                            UserActiveId = userID,
+                            Describe = _user.UserName + " đã đánh dấu " + task.Title.ToUpper() + " là: " + msgStatus,
+                        });
+                    }
+                    if (_task.TaskFrom != task.TaskFrom)
+                    {
+                        if (_task.TaskFrom == null)
+                        {
+                            noti.Add(new Notification
+                            {
+                                TaskId = task.Id,
+                                UserActiveId = userID,
+                                Describe = _user.UserName + " đã thêm ngày bắt đầu là " + task.TaskFrom,
+                            });
+                        }
+                        else
+                        {
+                            noti.Add(new Notification
+                            {
+                                TaskId = task.Id,
+                                UserActiveId = userID,
+                                Describe = _user.UserName + " đã sửa ngày bắt đầu thành " + task.TaskFrom,
+                            });
+                        }
+                    }
+                    if (_task.TaskTo != task.TaskTo)
+                    {
+                        if (_task.TaskTo == null)
+                        {
+                            noti.Add(new Notification
+                            {
+                                TaskId = task.Id,
+                                UserActiveId = userID,
+                                Describe = _user.UserName + " đã thêm ngày hết hạn là " + task.TaskTo,
+                            });
+                        }
+                        else
+                        {
+                            noti.Add(new Notification
+                            {
+                                TaskId = task.Id,
+                                UserActiveId = userID,
+                                Describe = _user.UserName + " đã sửa ngày hết hạn thành " + task.TaskTo,
+                            });
+                        }
+                    }
 
-            if (Save())
-            {
-                return new ResponseObject
+                }
+                _context.Notifications.AddRange(noti.ToArray());
+                _context.Tasks.Update(task);
+                var taskMap = _mapper.Map<TaskDto>(task);
+                taskMap.Info = GetInforTask(taskMap.Id);
+                if (Save())
                 {
-                    Status = Status.Success,
-                    Message = Message.Success + "updated task",
-                    Data = taskMap
-                };
-            }
-            else
-            {
-                return new ResponseObject
+                    return new ResponseObject
+                    {
+                        Status = Status.Success,
+                        Message = Message.Success + "updated task",
+                        Data = taskMap
+                    };
+                }
+                else
                 {
-                    Status = Status.BadRequest,
-                    Message = Message.BadRequest + "updated task",
-                };
+                    return new ResponseObject
+                    {
+                        Status = Status.BadRequest,
+                        Message = Message.BadRequest + "updated task",
+                    };
+                }
             }
+
+            return new ResponseObject
+            {
+                Status = Status.BadRequest,
+                Message = Message.BadRequest + " you can not update"
+            };
 
         }
         public ResponseObject DeleteTask(Models.Task task, int userID)
@@ -566,6 +604,10 @@ namespace TaskManagement.Repository
 
             var task = _context.Tasks.Where(o => o.SectionId == sectionId).ToList();
             var taskMap = _mapper.Map<List<TaskDto>>(task);
+            foreach (var item in taskMap)
+            {
+                item.Info = GetInforTask(item.Id);
+            }
             if (task == null)
             {
                 return new ResponseObject
@@ -645,26 +687,33 @@ namespace TaskManagement.Repository
             //}
         }
 
-        public ResponseObject GetInforTask(int taskID)
+        public Object GetInforTask(int taskID)
         {
             var task = _context.Tasks.SingleOrDefault(o => o.Id == taskID);
             if (task == null)
             {
-                return new ResponseObject
-                {
-                    Status = Status.NotFound,
-                    Message = Message.NotFound + "task",
-                };
+                return null;
+                //return new ResponseObject
+                //{
+                //    Status = Status.NotFound,
+                //    Message = Message.NotFound + "task",
+                //};
             }
             var section = _context.Sections.Where(o => o.Id == task.SectionId).SingleOrDefault();
+            if (section == null)
+            {
+                return null;
+            }
             var workSpace = _context.WorkSpaces.Where(o => o.Id == section.WorkSpaceId).SingleOrDefault();
             var userCreateTask = _context.UserTaskRoles.Where(o => o.TaskId == taskID && o.RoleId == 1).Select(o => o.User).SingleOrDefault();
+            return new { section = section.Title, workSpace = workSpace.Name, user = userCreateTask.UserName };
 
-            return new ResponseObject 
-            { Status = Status.Success,
-                Message = Message.Success,
-                Data = new {section = section.Title, workSpace = workSpace.Name, user= userCreateTask.UserName},
-            };
+            //return new ResponseObject
+            //{
+            //    Status = Status.Success,
+            //    Message = Message.Success,
+            //    Data = new { section = section.Title, workSpace = workSpace.Name, user = userCreateTask.UserName },
+            //};
         }
 
         public ResponseObject UpdateStatusTask(int taskID, int userID, bool status)
@@ -736,5 +785,29 @@ namespace TaskManagement.Repository
             }
         }
 
+        public ResponseObject GetTaskInWorkSpace(int workSpaceID, int userID)
+        {
+            var userWorkSpace = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID && o.WorkSpaceId == workSpaceID && o.RoleId == 1).SingleOrDefault();
+            if (userWorkSpace == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                };
+            }
+            var task = _context.UserTaskRoles.Where(o => o.RoleId == 1&& o.UserId == userID).Select(o => o.Task).Where(o => o.Section.WorkSpaceId == workSpaceID).ToList();
+            var taskMap = _mapper.Map<List<TaskDto>>(task);
+            foreach (var item in taskMap)
+            {
+                item.Info = GetInforTask(item.Id);
+            }
+            return new ResponseObject
+            {
+                Status = Status.Success,
+                Message = Message.Success,
+                Data = taskMap
+            };
+        }
     }
 }

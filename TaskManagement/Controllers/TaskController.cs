@@ -125,12 +125,12 @@ namespace TaskManagement.Controllers
             return Ok(task);
         }
 
-        [HttpGet("GetInforTask")]
-        public IActionResult GetInforTask(int taskID)
-        {
-            var info = _taskRepository.GetInforTask(taskID);
-            return Ok(info);
-        }
+        //[HttpGet("GetInforTask")]
+        //public IActionResult GetInforTask(int taskID)
+        //{
+        //    var info = _taskRepository.GetInforTask(taskID);
+        //    return Ok(info);
+        //}
 
         [HttpPut("UpdateStatusTask")]
         public IActionResult UpdateStatusTask(int taskID, int userID, bool status)
@@ -144,6 +144,13 @@ namespace TaskManagement.Controllers
         {
             var task = _taskRepository.UpdatePinTask(taskID, userID, status);
             return Ok(task);
+        }
+
+        [HttpGet("GetTaskInWorkSpace")]
+        public IActionResult GetTaskInWorkSpace(int workSpaceID, int userID)
+        {
+            var task = _taskRepository.GetTaskInWorkSpace(workSpaceID, userID); 
+            return Ok(task);    
         }
     }
 }

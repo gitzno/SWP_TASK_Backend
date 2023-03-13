@@ -28,11 +28,13 @@ namespace TaskManagement.Interface
         ResponseObject AddMemberIntoTask(int taskID, int userID, int roleID, int userAdminID);
         ResponseObject UpdateImage(int taskID, string file);
         ResponseObject GetTasksInSection(int sectionId);//Lấy task trong section
-        ResponseObject GetInforTask(int taskID);
+        Object GetInforTask(int taskID);
         ResponseObject GetTasksRangeByTime(int userID, DateTime? timeFrom, DateTime? timeTo); // hien thi cac task có mốc thời gian nào đó trong khoảng đã chọn
         ResponseObject UpdateStatusTask(int taskID, int userID, bool status);
 
         ResponseObject UpdatePinTask(int taskID, int userID, bool status);
+
+        ResponseObject GetTaskInWorkSpace(int workSpaceID, int userID);
 
     }
 }

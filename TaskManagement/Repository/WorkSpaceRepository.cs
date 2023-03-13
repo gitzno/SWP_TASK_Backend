@@ -251,8 +251,17 @@ namespace TaskManagement.Repository
             return saved > 0 ? true : false;
         }
 
-        public ResponseObject UpdateWorkSpace(WorkSpace workSpace)
+        public ResponseObject UpdateWorkSpace(WorkSpace workSpace, int userID)
         {
+            var user = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID && o.WorkSpaceId == workSpace.Id && o.RoleId == 1).FirstOrDefault();
+            if (user == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest + " you can not update"
+                };
+            }
             _context.WorkSpaces.Update(workSpace);
             var wsMap = _mapper.Map<WorkSpaceDto>(workSpace);
             if (GetWorkSpaceByID(workSpace.Id) == null)

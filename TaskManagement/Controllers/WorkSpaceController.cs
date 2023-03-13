@@ -67,10 +67,10 @@ namespace TaskManagement.Controllers
 
 
         [HttpPut("{workspaceID}")]
-        public IActionResult UpdateWorkSpace(int workspaceID,[FromBody] WorkSpaceDto workSpaceUpdate)
+        public IActionResult UpdateWorkSpace([FromBody] WorkSpaceDto workSpaceUpdate, int userID)
         {
             var workspaceMap = _mapper.Map<WorkSpace>(workSpaceUpdate);
-            var update = _workSpaceRepository.UpdateWorkSpace(workspaceMap);
+            var update = _workSpaceRepository.UpdateWorkSpace(workspaceMap, userID);
             return Ok(update);
         }
 

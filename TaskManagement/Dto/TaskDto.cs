@@ -14,5 +14,6 @@
         public bool PinTask { get; set; }
         public int? TagId { get; set; }
         public string? Attachment { get; set; }
+        public Object?  Info { get; set; }
     }
 }
