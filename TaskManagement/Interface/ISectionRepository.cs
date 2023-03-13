@@ -16,7 +16,7 @@ namespace TaskManagement.Interface
         ResponseObject AddMemberIntoSection(int sectionID, int userId, int roleID);
         ResponseObject CreateSection(int userID, int roleID, Section section);
         ResponseObject UpdateSection(Section section);
-        ResponseObject DeleteSection(Section section);
+        ResponseObject DeleteSection(Section section, int userID);
         bool SectionExists(int sectionID);
         bool Save();
 

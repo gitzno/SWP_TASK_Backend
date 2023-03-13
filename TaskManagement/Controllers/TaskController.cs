@@ -87,18 +87,11 @@ namespace TaskManagement.Controllers
         }
 
         [HttpDelete("{taskID}")]
-        public IActionResult DeleteTask(int taskID)
+        public IActionResult DeleteTask(int taskID, int userID)
         {
             var task = _taskRepository.GetTaskByID(taskID);
-            if (task == null) {
-                return Ok(new ResponseObject
-                {
-                    Status = "404",
-                    Message = "Not found",
-                    Data = null
-                });
-            }
-            return Ok(_taskRepository.DeleteTask(task));
+            
+            return Ok(_taskRepository.DeleteTask(task, userID));
         }
 
 
@@ -112,9 +105,9 @@ namespace TaskManagement.Controllers
         }
 
         [HttpPost("AddMemberIntoTask/{taskID}")]
-        public IActionResult AddMemberIntoTask(int taskID, int userID, int roleID)
+        public IActionResult AddMemberIntoTask(int taskID, int userID, int roleID, int adminID)
         {
-            var addMember = _taskRepository.AddMemberIntoTask(taskID, userID, roleID);
+            var addMember = _taskRepository.AddMemberIntoTask(taskID, userID, roleID, adminID);
             return Ok(addMember);
         }
 
@@ -130,6 +123,13 @@ namespace TaskManagement.Controllers
         {
             var task = _taskRepository.GetTasksRangeByTime(userID, timeFrom, timeTo);   
             return Ok(task);
+        }
+
+        [HttpGet("GetInforTask")]
+        public IActionResult GetInforTask(int taskID)
+        {
+            var info = _taskRepository.GetInforTask(taskID);
+            return Ok(info);
         }
     }
 }

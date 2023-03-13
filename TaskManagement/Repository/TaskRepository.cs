@@ -17,7 +17,7 @@ namespace TaskManagement.Repository
         private readonly IMapper _mapper;
 
 
-        
+
         public TaskRepository(TaskManagementContext context, IMapper mapper)
         {
             _context = context;
@@ -61,17 +61,18 @@ namespace TaskManagement.Repository
             }
 
             ICollection<Models.Task> tasks = new Collection<Models.Task>();
-            
+
             if (workspaceID != 0)
             {
-                 tasks = _context.UserTaskRoles.Where(utr => utr.UserId == userID && utr.RoleId == 2)
-                    .Select(t => t.Task).Where(o => o.Section.WorkSpace.Id == workspaceID).ToList();
-            } else
-            {
-                 tasks = _context.UserTaskRoles.Where(utr => utr.UserId == userID && (utr.RoleId == 2 || utr.RoleId == 1))
-                    .Select(t => t.Task).Distinct().ToList();
+                tasks = _context.UserTaskRoles.Where(utr => utr.UserId == userID && utr.RoleId == 2)
+                   .Select(t => t.Task).Where(o => o.Section.WorkSpace.Id == workspaceID).ToList();
             }
-            
+            else
+            {
+                tasks = _context.UserTaskRoles.Where(utr => utr.UserId == userID && (utr.RoleId == 2 || utr.RoleId == 1))
+                   .Select(t => t.Task).Distinct().ToList();
+            }
+
             var tasksMap = _mapper.Map<List<TaskDto>>(tasks);
             if (tasks != null)
             {
@@ -87,7 +88,7 @@ namespace TaskManagement.Repository
                 return new ResponseObject
                 {
                     Status = Status.NotFound,
-                    Message = Message.NotFound +" task",
+                    Message = Message.NotFound + " task",
                 };
             }
         }
@@ -123,7 +124,7 @@ namespace TaskManagement.Repository
                 return new ResponseObject
                 {
                     Status = Status.NotFound,
-                    Message = Message.NotFound +" task"
+                    Message = Message.NotFound + " task"
                 };
             }
         }
@@ -160,7 +161,8 @@ namespace TaskManagement.Repository
                     Message = Message.Success,
                     Data = tasksCount,
                 };
-            } else
+            }
+            else
             {
                 return new ResponseObject
                 {
@@ -192,7 +194,7 @@ namespace TaskManagement.Repository
             }
             var numberOfTaskDone = _context.UserTaskRoles.Where(utr => utr.UserId == userId && utr.RoleId == 2)
             .Select(t => t.Task).Where(t => t.Section.WorkSpaceId == workspaceID && t.Status == status).ToList();
-            
+
             if (numberOfTaskDone == null)
             {
                 return new ResponseObject
@@ -222,9 +224,9 @@ namespace TaskManagement.Repository
                 return new ResponseObject
                 {
                     Status = Status.NotFound,
-                    Message = Message.NotFound +" user"
+                    Message = Message.NotFound + " user"
                 };
-            if ( role == null)
+            if (role == null)
                 return new ResponseObject
                 {
                     Status = Status.NotFound,
@@ -242,7 +244,7 @@ namespace TaskManagement.Repository
             };
             string noti = user.UserName + " đã thêm " + task.Title;
             if (section != null)
-                noti += " vào danh sách "+section.Title;
+                noti += " vào danh sách " + section.Title;
 
             var notifi = new Notification
             {
@@ -256,13 +258,13 @@ namespace TaskManagement.Repository
             _context.Add(userTaskRole);
             _context.Tasks.Add(task);
 
-            
+
             var taskMap = _mapper.Map<TaskDto>(task);
             if (Save())
                 return new ResponseObject
                 {
                     Status = Status.Success,
-                    Message = Message.Success +"created task",
+                    Message = Message.Success + "created task",
                     Data = taskMap
                 };
             else
@@ -270,17 +272,17 @@ namespace TaskManagement.Repository
                 return new ResponseObject
                 {
                     Status = Status.BadRequest,
-                    Message = Message.BadRequest +" created task"
+                    Message = Message.BadRequest + " created task"
                 };
             }
 
         }
 
-       
+
         public ResponseObject UpdateTask(Models.Task task, int userID)
         {
             List<Notification> noti = new List<Notification>();
-            var _user = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID).Select(o => o.User).FirstOrDefault();    
+            var _user = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID).Select(o => o.User).FirstOrDefault();
             if (_user == null)
             {
                 return new ResponseObject
@@ -315,7 +317,7 @@ namespace TaskManagement.Repository
                     {
                         TaskId = task.Id,
                         UserActiveId = userID,
-                        Describe = _user.UserName + " đã thay đổi mô tả thành \"" + task.Describe+"\"",
+                        Describe = _user.UserName + " đã thay đổi mô tả thành \"" + task.Describe + "\"",
                     });
                 }
                 if (_task.Status != task.Status)
@@ -382,7 +384,7 @@ namespace TaskManagement.Repository
                 return new ResponseObject
                 {
                     Status = Status.Success,
-                    Message = Message.Success +"updated task",
+                    Message = Message.Success + "updated task",
                     Data = taskMap
                 };
             }
@@ -395,29 +397,47 @@ namespace TaskManagement.Repository
                 };
             }
 
-          }
-        public ResponseObject DeleteTask(Models.Task task)
+        }
+        public ResponseObject DeleteTask(Models.Task task, int userID)
         {
-            
-            _context.Remove(task);
-            
-            if (Save())
+            if (task == null)
             {
                 return new ResponseObject
                 {
-                    Status = Status.Success,
-                    Message = Message.Success + "delete task"
+                    Status = Status.NotFound,
+                    Message = Message.NotFound + " task"
+                };
+            }
+            var secID = task.SectionId;
+            var wsID = _context.Sections.Where(o => o.Id == secID).Select(o => o.WorkSpaceId).SingleOrDefault();
 
-                };
-            }
-            else
+            var _userAdmin = _context.UserWorkSpaceRoles.SingleOrDefault(o => o.UserId == userID && o.RoleId == 1 && o.WorkSpaceId == wsID);
+            var _userCreateTask = _context.UserTaskRoles.SingleOrDefault(o => o.UserId == userID && o.RoleId == 1 && o.TaskId == task.Id);
+
+            if (_userAdmin != null || _userCreateTask != null)
             {
-                return new ResponseObject
+
+                _context.Remove(task);
+
+                if (Save())
                 {
-                    Status = Status.BadRequest,
-                    Message = Message.BadRequest + "delete task"
-                };
+                    return new ResponseObject
+                    {
+                        Status = Status.Success,
+                        Message = Message.Success + "delete task"
+
+                    };
+                }
+                else
+                {
+                    return new ResponseObject
+                    {
+                        Status = Status.BadRequest,
+                        Message = Message.BadRequest + "delete task"
+                    };
+                }
             }
+            return new ResponseObject { Status = Status.BadRequest, Message = Message.BadRequest + " can not delete" };
         }
 
 
@@ -468,13 +488,17 @@ namespace TaskManagement.Repository
             return _context.UserTaskRoles.Where(t => t.TaskId == taskID && t.RoleId != 1).Count();
         }
 
-        public ResponseObject AddMemberIntoTask(int taskID, int userID, int roleID)
+        public ResponseObject AddMemberIntoTask(int taskID, int userID, int roleID, int adminID)
         {
             var task = _context.Tasks.Where(o => o.Id == taskID).FirstOrDefault();
-            var user = _context.Users.Where(o => o.Id == userID).FirstOrDefault();
+            var secID = task.SectionId;
+            var wsID = _context.Sections.Where(o => o.Id == secID).Select(o => o.WorkSpaceId).SingleOrDefault();
+            var user = _context.Users.Where(o => o.Id == userID).FirstOrDefault(); // la thang duoc them vao
             var role = _context.Roles.Where(o => o.Id == roleID).FirstOrDefault();
-            var _user = _context.UserTaskRoles.Where(o => o.UserId == userID && o.TaskId == taskID).FirstOrDefault();
-            var _userWS = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID).FirstOrDefault();
+            var _user = _context.UserTaskRoles.Where(o => o.UserId == userID && o.TaskId == taskID).FirstOrDefault(); // xem da o trong task chua
+            var _userWS = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID && o.WorkSpaceId == wsID).FirstOrDefault();  // xem da trong ws k
+
+            var admin = _context.UserWorkSpaceRoles.Where(o => o.UserId == adminID && o.WorkSpaceId == wsID && o.RoleId == 1).FirstOrDefault();
             if (_userWS == null)
             {
                 return new ResponseObject
@@ -496,10 +520,17 @@ namespace TaskManagement.Repository
                 return new ResponseObject
                 {
                     Status = Status.NotFound,
-                    Message = Message.NotFound + "user or task or role " ,
+                    Message = Message.NotFound + "user or task or role ",
                 };
             }
-
+            if (admin == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest + " not ADMIN"
+                };
+            }
             var addUserTask = new UserTaskRole
             {
                 TaskId = taskID,
@@ -538,7 +569,7 @@ namespace TaskManagement.Repository
                     Message = Message.NotFound + " section",
                 };
             }
-            
+
             var task = _context.Tasks.Where(o => o.SectionId == sectionId).ToList();
             var taskMap = _mapper.Map<List<TaskDto>>(task);
             if (task == null)
@@ -591,7 +622,7 @@ namespace TaskManagement.Repository
                 return new ResponseObject
                 {
                     Status = Status.NotFound,
-                    Message = Message.NotFound +"task",
+                    Message = Message.NotFound + "task",
                 };
             }
         }
@@ -603,12 +634,12 @@ namespace TaskManagement.Repository
 
             //if (task != null)
             //{
-                return new ResponseObject
-                {
-                    Status = Status.Success,
-                    Message = Message.Success,
-                    //Data = task
-                };
+            return new ResponseObject
+            {
+                Status = Status.Success,
+                Message = Message.Success,
+                //Data = task
+            };
             //}
             //else
             //{
@@ -618,6 +649,28 @@ namespace TaskManagement.Repository
             //        Message = Message.NotFound,
             //    };
             //}
+        }
+
+        public ResponseObject GetInforTask(int taskID)
+        {
+            var task = _context.Tasks.SingleOrDefault(o => o.Id == taskID);
+            if (task == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.NotFound,
+                    Message = Message.NotFound + "task",
+                };
+            }
+            var section = _context.Sections.Where(o => o.Id == task.SectionId).SingleOrDefault();
+            var workSpace = _context.WorkSpaces.Where(o => o.Id == section.WorkSpaceId).SingleOrDefault();
+            var userCreateTask = _context.UserTaskRoles.Where(o => o.TaskId == taskID && o.RoleId == 1).Select(o => o.User).SingleOrDefault();
+
+            return new ResponseObject 
+            { Status = Status.Success,
+                Message = Message.Success,
+                Data = new {section = section.Title, workSpace = workSpace.Name, user= userCreateTask.UserName},
+            };
         }
     }
 }

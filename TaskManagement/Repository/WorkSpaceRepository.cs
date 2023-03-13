@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TaskManagement.Dto;
 using TaskManagement.Interface;
 using TaskManagement.Models;
@@ -20,14 +21,23 @@ namespace TaskManagement.Repository
         }
 
 
-        public ResponseObject AddMemberIntoWorkspace(int workSpaceID, string nameUser, int roleID)
+        public ResponseObject AddMemberIntoWorkspace(int workSpaceID, string nameUser, int roleID, int adminID)
         {
+
             var user = _context.Users.Where(u => u.UserName == nameUser).FirstOrDefault();
             var role = _context.Roles.Where(r => r.Id == roleID).FirstOrDefault();
             var workSpace = _context.WorkSpaces.Where(w => w.Id == workSpaceID).FirstOrDefault();
             var _user = _context.UserWorkSpaceRoles
-                .Where(o => o.UserId == user.Id && o.WorkSpaceId == workSpace.Id).FirstOrDefault();
-
+                .Where(o => o.UserId == user.Id && o.WorkSpaceId == workSpace.Id).FirstOrDefault(); // tim xem da trong ws chua
+            var admin = _context.UserWorkSpaceRoles.Where(o => o.UserId == adminID && o.WorkSpaceId == workSpaceID && o.RoleId == 1).FirstOrDefault(); // tim th admin
+            if (admin == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest + " not ADMIN"
+                };
+            }
             if (user == null)
             {
                 return new ResponseObject
@@ -143,8 +153,25 @@ namespace TaskManagement.Repository
             }
         } 
 
-        public ResponseObject DeleteWorkSpace(WorkSpace workSpace)
+        public ResponseObject DeleteWorkSpace(WorkSpace workSpace, int userID)
         {
+            if (workSpace == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.NotFound,
+                    Message = Message.NotFound + " workSpace"
+                };
+            }
+            var _user = _context.UserWorkSpaceRoles.SingleOrDefault(o => o.UserId == userID && o.RoleId == 1 && o.WorkSpaceId == workSpace.Id);
+            if (_user == null )
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest + "you are not admin",
+                };
+            }
             if (GetWorkSpaceByID(workSpace.Id) == null)
             {
                 return new ResponseObject

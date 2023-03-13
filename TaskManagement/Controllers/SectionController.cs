@@ -90,12 +90,12 @@ namespace TaskManagement.Controllers
         }
 
         [HttpDelete("{sectionID}")]
-        public IActionResult DeleteSection(int sectionID)
+        public IActionResult DeleteSection(int sectionID, int userID)
         {
             try
             {
                 var section = _sectionRepository.GetSectionById(sectionID);
-                var detele =  _sectionRepository.DeleteSection(section);
+                var detele =  _sectionRepository.DeleteSection(section, userID);
                 return Ok(detele);
             }
             catch (Exception ex)

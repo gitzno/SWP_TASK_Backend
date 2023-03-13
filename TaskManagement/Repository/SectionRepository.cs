@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using System.Threading.Tasks;
 using TaskManagement.Dto;
 using TaskManagement.Interface;
 using TaskManagement.Models;
@@ -267,25 +268,46 @@ namespace TaskManagement.Repository
             }
         }
 
-        public ResponseObject DeleteSection(Section section)
+        public ResponseObject DeleteSection(Section section, int userID)
         {
-            _context.Sections.Remove(section);
-            if (Save())
+            if (section == null)
             {
                 return new ResponseObject
                 {
-                    Status = Status.Success,
-                    Message = Message.Success+" deleted section"
+                    Status = Status.NotFound,
+                    Message = Message.NotFound + " section"
                 };
             }
-            else
+            var wsID = section.WorkSpaceId;
+            var _userAdmin = _context.UserWorkSpaceRoles.SingleOrDefault(o => o.UserId == userID && o.RoleId == 1 && o.WorkSpaceId == wsID);
+            var _userCreateSection = _context.UserSectionRoles.SingleOrDefault(o => o.UserId == userID && o.RoleId == 1 && o.SectionId == section.Id);
+            if (_userAdmin != null || _userCreateSection != null)
             {
-                return new ResponseObject
+
+
+                _context.Sections.Remove(section);
+                if (Save())
                 {
-                    Status = Status.BadRequest,
-                    Message = Message.BadRequest + " deleted section",
-                };
+                    return new ResponseObject
+                    {
+                        Status = Status.Success,
+                        Message = Message.Success + " deleted section"
+                    };
+                }
+                else
+                {
+                    return new ResponseObject
+                    {
+                        Status = Status.BadRequest,
+                        Message = Message.BadRequest + " deleted section",
+                    };
+                }
             }
+            return new ResponseObject
+            {
+                Status = Status.BadRequest,
+                Message = Message.BadRequest + " can not delete"
+            };
         }
 
      

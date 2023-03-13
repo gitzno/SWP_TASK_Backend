@@ -75,10 +75,10 @@ namespace TaskManagement.Controllers
         }
 
         [HttpDelete("{workSpaceID}")]
-        public IActionResult DeleteWorkSpace(int workSpaceID)
+        public IActionResult DeleteWorkSpace(int workSpaceID, int userID)
         {
             var workspace = _workSpaceRepository.GetWorkSpaceByID(workSpaceID);
-            return Ok(_workSpaceRepository.DeleteWorkSpace(workspace));
+            return Ok(_workSpaceRepository.DeleteWorkSpace(workspace, userID));
         }
 
 
@@ -86,9 +86,9 @@ namespace TaskManagement.Controllers
 
         [HttpPost("AddMember/{workSpaceID}")]
         // add thành viên vào trong ws
-        public IActionResult AddMemberIntoWorkspace(int workSpaceID, string nameUser, int roleID)
+        public IActionResult AddMemberIntoWorkspace(int workSpaceID, string nameUser, int roleID, int adminID)
         {
-            var addMember = _workSpaceRepository.AddMemberIntoWorkspace(workSpaceID, nameUser, roleID);
+            var addMember = _workSpaceRepository.AddMemberIntoWorkspace(workSpaceID, nameUser, roleID, adminID);
             return Ok(addMember);
         }
 

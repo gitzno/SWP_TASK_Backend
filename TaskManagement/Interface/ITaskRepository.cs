@@ -21,15 +21,15 @@ namespace TaskManagement.Interface
         Task GetTaskByID(int taskId);
         ResponseObject CreateTask(int? sectionID, int userId, int roleId, Task task);
         ResponseObject UpdateTask(Task task, int userID);
-        ResponseObject DeleteTask(Task task);
+        ResponseObject DeleteTask(Task task, int userID);
         bool Save();
 
         //ResponseObject TasksFilter(int workSpaceID, int? day, bool? done, int? numMenber);
-        ResponseObject AddMemberIntoTask(int taskID, int userID, int roleID);
+        ResponseObject AddMemberIntoTask(int taskID, int userID, int roleID, int userAdminID);
         ResponseObject UpdateImage(int taskID, string file);
         ResponseObject GetTasksInSection(int sectionId);//Lấy task trong section
-
+        ResponseObject GetInforTask(int taskID);
         ResponseObject GetTasksRangeByTime(int userID, DateTime? timeFrom, DateTime? timeTo); // hien thi cac task có mốc thời gian nào đó trong khoảng đã chọn
-
+        ResponseObject UpdateStatusTask(int userID, bool status, int taskID)
     }
 }

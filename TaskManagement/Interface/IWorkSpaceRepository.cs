@@ -9,10 +9,10 @@ namespace TaskManagement.Interface
         WorkSpace GetWorkSpaceByID(int workSpaceID);
         ResponseObject GetWorkSpacesByUser(int userID);   
         ResponseObject GetWorkSpaceByCreateTime(int? month, int year);
-        ResponseObject AddMemberIntoWorkspace(int workSpaceID, string userName, int roleID);
+        ResponseObject AddMemberIntoWorkspace(int workSpaceID, string userName, int roleID, int adminID);
         ResponseObject CreateWorkSpace(int userID, int roleID, WorkSpace workSpaceCreate);
         ResponseObject UpdateWorkSpace(WorkSpace workSpace);
-        ResponseObject DeleteWorkSpace(WorkSpace workSpace);
+        ResponseObject DeleteWorkSpace(WorkSpace workSpace, int userID);
         bool Save();
 
 
