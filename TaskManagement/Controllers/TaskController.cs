@@ -119,7 +119,7 @@ namespace TaskManagement.Controllers
         }
 
         [HttpGet("GetTasksRangeByTime")]
-        public IActionResult GetTasksRangeByTime(int userID, DateTime? timeFrom, DateTime? timeTo)
+        public IActionResult GetTasksRangeByTime(int userID, DateTime timeFrom, DateTime timeTo)
         {
             var task = _taskRepository.GetTasksRangeByTime(userID, timeFrom, timeTo);   
             return Ok(task);

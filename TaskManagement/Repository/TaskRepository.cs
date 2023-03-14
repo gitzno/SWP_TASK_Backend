@@ -663,28 +663,42 @@ namespace TaskManagement.Repository
             }
         }
 
-        public ResponseObject GetTasksRangeByTime(int userID, DateTime? timeFrom, DateTime? timeTo)
+        public ResponseObject GetTasksRangeByTime(int userID, DateTime timeFrom, DateTime timeTo)
         {
-            //var task = _context.UserTaskRoles.Where(o => o.UserId == userID)
-            //    .Select(o => o.Task).Where(o => (o.TaskFrom >= timeFrom o.TaskFrom ) )
+            var user = _context.Users.SingleOrDefault(o => o.Id == userID);
+            if (user == null)
+                return new ResponseObject
+                {
+                    Status = Status.NotFound,
+                    Message = Message.NotFound + " user"
+                };
 
-            //if (task != null)
-            //{
-            return new ResponseObject
+            var task = _context.UserTaskRoles.Where(o => o.UserId == userID)
+                .Select(o => o.Task).Where(o => o.TaskTo >= timeFrom && o.TaskFrom <= timeTo).ToList();
+
+            var taskMap = _mapper.Map<List<TaskDto>>(task);
+            foreach (var item in taskMap)
+            {
+                item.Info = GetInforTask(item.Id);
+            }
+
+            if (task != null)
+            {
+                return new ResponseObject
             {
                 Status = Status.Success,
                 Message = Message.Success,
-                //Data = task
-            };
-            //}
-            //else
-            //{
-            //    return new ResponseObject
-            //    {
-            //        Status = Status.NotFound,
-            //        Message = Message.NotFound,
-            //    };
-            //}
+                    Data = taskMap
+                };
+            }
+            else
+            {
+                return new ResponseObject
+                {
+                    Status = Status.NotFound,
+                    Message = Message.NotFound,
+                };
+            }
         }
 
         public Object GetInforTask(int taskID)
