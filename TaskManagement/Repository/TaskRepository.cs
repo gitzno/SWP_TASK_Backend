@@ -31,7 +31,7 @@ namespace TaskManagement.Repository
         public ResponseObject GetTasks()
         {
             var tasks = _context.Tasks.ToList();
-            var taskMap = _mapper.Map<List<TaskDto>>(tasks);
+            var taskMap = _mapper.Map<List<TaskGetObject>>(tasks);
             foreach (var item in taskMap)
             {
                 item.Info = GetInforTask(item.Id);
@@ -76,7 +76,7 @@ namespace TaskManagement.Repository
                    .Select(t => t.Task).Distinct().ToList();
             }
 
-            var tasksMap = _mapper.Map<List<TaskDto>>(tasks);
+            var tasksMap = _mapper.Map<List<TaskGetObject>>(tasks);
             foreach (var item in tasksMap)
             {
                 item.Info = GetInforTask(item.Id);
@@ -116,7 +116,7 @@ namespace TaskManagement.Repository
             .Select(t => t.Task).Where(t => t.Section.WorkSpaceId == workspaceID).ToList();
 
             var tasks = tasksAll.Except(tasksAssign);
-            var taskMap = _mapper.Map<List<TaskDto>>(tasks);
+            var taskMap = _mapper.Map<List<TaskGetObject>>(tasks);
             foreach (var item in taskMap)
             {
                 item.Info = GetInforTask(item.Id);
@@ -205,7 +205,7 @@ namespace TaskManagement.Repository
             }
             var numberOfTaskDone = _context.UserTaskRoles.Where(utr => utr.UserId == userId && utr.RoleId == 2)
             .Select(t => t.Task).Where(t => t.Section.WorkSpaceId == workspaceID && t.Status == status).ToList();
-            var taskMap = _mapper.Map<List<TaskDto>>(numberOfTaskDone);
+            var taskMap = _mapper.Map<List<TaskGetObject>>(numberOfTaskDone);
             foreach (var item in taskMap)
             {
                 item.Info = GetInforTask(item.Id);
@@ -307,9 +307,10 @@ namespace TaskManagement.Repository
             {
                 var ws = _context.WorkSpaces.Where(o => o.Id == section.WorkSpaceId).FirstOrDefault();
                 wsID = ws.Id;
-            // tim ra th tao ws 
+            
             }
-                var _userWorkSpace = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID && o.RoleId == 1 && o.WorkSpaceId == wsID).FirstOrDefault();
+            // tim ra th tao ws 
+            var _userWorkSpace = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID && o.RoleId == 1 && o.WorkSpaceId == wsID).FirstOrDefault();
             // tim ra th tao task 
             var _userCreateTask = _context.UserTaskRoles.Where(o => o.UserId == userID && o.RoleId == 1 && o.TaskId == task.Id).FirstOrDefault();
 
@@ -403,7 +404,6 @@ namespace TaskManagement.Repository
                 _context.Notifications.AddRange(noti.ToArray());
                 _context.Tasks.Update(task);
                 var taskMap = _mapper.Map<TaskDto>(task);
-                taskMap.Info = GetInforTask(taskMap.Id);
                 if (Save())
                 {
                     return new ResponseObject
@@ -531,6 +531,7 @@ namespace TaskManagement.Repository
             var _userWS = _context.UserWorkSpaceRoles.Where(o => o.UserId == userID && o.WorkSpaceId == wsID).FirstOrDefault();  // xem da trong ws k
 
             var admin = _context.UserWorkSpaceRoles.Where(o => o.UserId == adminID && o.WorkSpaceId == wsID && o.RoleId == 1).FirstOrDefault();
+            var adminInfo = _context.Users.SingleOrDefault(o => o.Id == adminID);
             if (_userWS == null)
             {
                 return new ResponseObject
@@ -569,10 +570,19 @@ namespace TaskManagement.Repository
                 RoleId = roleID,
                 UserId = userID,
             };
+            var noti = new Notification
+            {
+                TaskId= taskID,
+                UserActiveId= adminID,
+                UserPassiveId= userID,
+                Describe = adminInfo.UserName.ToUpper() +" đã giao "+ task.Title+ " cho "+user.UserName.ToUpper(),
+            };
+            _context.Notifications.Add(noti);
             _context.UserTaskRoles.Add(addUserTask);
             var userMap = _mapper.Map<UserDto>(user);
             if (Save())
             {
+
                 return new ResponseObject
                 {
                     Status = Status.Success,
@@ -603,7 +613,7 @@ namespace TaskManagement.Repository
             }
 
             var task = _context.Tasks.Where(o => o.SectionId == sectionId).ToList();
-            var taskMap = _mapper.Map<List<TaskDto>>(task);
+            var taskMap = _mapper.Map<List<TaskGetObject>>(task);
             foreach (var item in taskMap)
             {
                 item.Info = GetInforTask(item.Id);
@@ -676,7 +686,7 @@ namespace TaskManagement.Repository
             var task = _context.UserTaskRoles.Where(o => o.UserId == userID)
                 .Select(o => o.Task).Where(o => o.TaskTo >= timeFrom && o.TaskFrom <= timeTo).ToList();
 
-            var taskMap = _mapper.Map<List<TaskDto>>(task);
+            var taskMap = _mapper.Map<List<TaskGetObject>>(task);
             foreach (var item in taskMap)
             {
                 item.Info = GetInforTask(item.Id);
@@ -811,7 +821,7 @@ namespace TaskManagement.Repository
                 };
             }
             var task = _context.UserTaskRoles.Where(o => o.RoleId == 1&& o.UserId == userID).Select(o => o.Task).Where(o => o.Section.WorkSpaceId == workSpaceID).ToList();
-            var taskMap = _mapper.Map<List<TaskDto>>(task);
+            var taskMap = _mapper.Map<List<TaskGetObject>>(task);
             foreach (var item in taskMap)
             {
                 item.Info = GetInforTask(item.Id);

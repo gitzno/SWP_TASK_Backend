@@ -1,6 +1,6 @@
 ﻿namespace TaskManagement.Dto
 {
-    public class TaskDto
+    public class TaskGetObject
     {
         public int Id { get; set; }
         public int? SectionId { get; set; }
@@ -14,5 +14,6 @@
         public bool PinTask { get; set; }
         public int? TagId { get; set; }
         public string? Attachment { get; set; }
+        public Object? Info { get; set; }
     }
 }

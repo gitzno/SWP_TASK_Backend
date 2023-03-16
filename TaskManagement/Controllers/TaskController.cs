@@ -72,7 +72,13 @@ namespace TaskManagement.Controllers
         public IActionResult CreateTask([FromQuery] int userID, [FromQuery] int roleID,
             [FromQuery]int? sectionID, [FromBody] TaskDto taskCreate)
         {
-            
+            if (taskCreate.TaskFrom== null)
+            {
+                taskCreate.TaskFrom = DateTime.Now;
+            } if (taskCreate.TaskTo== null)
+            {
+                taskCreate.TaskTo = DateTime.MaxValue;
+            }
             var taskMap = _mapper.Map<Models.Task>(taskCreate);
             var created = _taskRepository.CreateTask(sectionID, userID, roleID, taskMap);
             return Ok(created);
