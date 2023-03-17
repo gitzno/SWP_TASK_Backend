@@ -834,9 +834,9 @@ namespace TaskManagement.Repository
             };
         }
 
-        public ResponseObject GetUserTaskRoleByUserID(int userId)
+        public ResponseObject GetUserTaskRoleByUserID(int userId, int taskID)
         {
-            var userTask = _context.UserTaskRoles.Where(o => o.UserId == userId).ToList();
+            var userTask = _context.UserTaskRoles.Where(o => o.UserId == userId && o.TaskId == taskID && o.RoleId != 1).ToList();
             if (userTask != null)
             {
                 var userTaskMap = _mapper.Map<List<UserTaskRoleDto>>(userTask);
