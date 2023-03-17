@@ -836,10 +836,10 @@ namespace TaskManagement.Repository
 
         public ResponseObject GetUserTaskRoleByUserID(int userId, int taskID)
         {
-            var userTask = _context.UserTaskRoles.Where(o => o.UserId == userId && o.TaskId == taskID && o.RoleId != 1).ToList();
+            var userTask = _context.UserTaskRoles.Where(o => o.UserId == userId && o.TaskId == taskID && o.RoleId != 1).SingleOrDefault();
             if (userTask != null)
             {
-                var userTaskMap = _mapper.Map<List<UserTaskRoleDto>>(userTask);
+                var userTaskMap = _mapper.Map<UserTaskRoleDto>(userTask);
                 return new ResponseObject
                 {
                     Status = Status.Success,
