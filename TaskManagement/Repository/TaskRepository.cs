@@ -833,5 +833,26 @@ namespace TaskManagement.Repository
                 Data = taskMap
             };
         }
+
+        public ResponseObject GetUserTaskRoleByUserID(int userId)
+        {
+            var userTask = _context.UserTaskRoles.Where(o => o.UserId == userId).ToList();
+            if (userTask != null)
+            {
+                var userTaskMap = _mapper.Map<List<UserTaskRoleDto>>(userTask);
+                return new ResponseObject
+                {
+                    Status = Status.Success,
+                    Message = Message.Success,
+                    Data = userTaskMap
+                };
+            }
+
+            return new ResponseObject
+            {
+                Status = Status.BadRequest,
+                Message = Message.BadRequest,
+            };
+        }
     }
 }

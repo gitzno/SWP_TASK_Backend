@@ -15,6 +15,7 @@ namespace TaskManagement.Helper
             CreateMap<Models.Task, TaskDto>().ReverseMap();
             CreateMap<Comment, CommentDto>().ReverseMap();  
             CreateMap<Models.Task, TaskGetObject>().ReverseMap();    
+            CreateMap<UserTaskRole, UserTaskRoleDto>().ReverseMap();  
         }
     }
 }

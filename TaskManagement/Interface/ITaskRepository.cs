@@ -36,5 +36,7 @@ namespace TaskManagement.Interface
 
         ResponseObject GetTaskInWorkSpace(int workSpaceID, int userID);
 
+        ResponseObject GetUserTaskRoleByUserID(int userId); 
+
     }
 }

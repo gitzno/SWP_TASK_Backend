@@ -158,5 +158,12 @@ namespace TaskManagement.Controllers
             var task = _taskRepository.GetTaskInWorkSpace(workSpaceID, userID); 
             return Ok(task);    
         }
+
+        [HttpGet("GetUserTaskRoleByUserID")]
+        public IActionResult GetUserTaskRoleByUserID(int userId)
+        {
+            var task = _taskRepository.GetUserTaskRoleByUserID( userId);
+            return Ok(task);
+        }
     }
 }
