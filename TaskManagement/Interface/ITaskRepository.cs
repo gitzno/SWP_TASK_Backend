@@ -36,7 +36,10 @@ namespace TaskManagement.Interface
 
         ResponseObject GetTaskInWorkSpace(int workSpaceID, int userID);
 
-        ResponseObject GetUserTaskRoleByUserID(int userId, int taskID); 
+        ResponseObject GetUserTaskRoleByUserID(int userId, int taskID);
+        ResponseObject GetUserTaskRoleByUserID(int userId);
+
+        ResponseObject UpdateSectionTask(int sectionID, int taskID,int userID);
 
     }
 }

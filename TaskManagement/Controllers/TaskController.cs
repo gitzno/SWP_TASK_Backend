@@ -165,5 +165,18 @@ namespace TaskManagement.Controllers
             var task = _taskRepository.GetUserTaskRoleByUserID( userId, taskID);
             return Ok(task);
         }
+        [HttpGet("GetUserTaskRoleAllByUserID")]
+        public IActionResult GetUserTaskRoleAllByUserID(int userId)
+        {
+            var task = _taskRepository.GetUserTaskRoleByUserID(userId);
+            return Ok(task);
+        }
+
+        [HttpGet("UpdateSectionTask")]
+        public IActionResult UpdateSectionTask(int sectionNewID, int taskID, int userID)
+        {
+            var task = _taskRepository.UpdateSectionTask(sectionNewID, taskID, userID);
+            return Ok(task);    
+        }
     }
 }

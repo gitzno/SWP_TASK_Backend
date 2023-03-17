@@ -854,5 +854,81 @@ namespace TaskManagement.Repository
                 Message = Message.BadRequest,
             };
         }
+        public ResponseObject GetUserTaskRoleByUserID(int userId)
+        {
+            var userTask = _context.UserTaskRoles.Where(o => o.UserId == userId && o.RoleId != 1).ToList();
+            if (userTask != null)
+            {
+                var userTaskMap = _mapper.Map<List<UserTaskRoleDto>>(userTask);
+                return new ResponseObject
+                {
+                    Status = Status.Success,
+                    Message = Message.Success,
+                    Data = userTaskMap
+                };
+            }
+
+            return new ResponseObject
+            {
+                Status = Status.BadRequest,
+                Message = Message.BadRequest,
+            };
+        }
+
+        public ResponseObject UpdateSectionTask(int sectionNewID, int taskID, int userID)
+        {
+            var sectionNew = _context.Sections.SingleOrDefault(o => o.Id == sectionNewID);
+            if (sectionNew == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.NotFound,
+                    Message = Message.NotFound + " section",
+                };
+            }
+            var task = _context.Tasks.Where(o => o.Id == taskID).FirstOrDefault();
+            var sec = _context.Sections.SingleOrDefault(o => o.Id == task.SectionId);
+            var wsID = _context.Sections.Where(o => o.Id == sec.WorkSpaceId).Select(o => o.WorkSpaceId).SingleOrDefault();
+
+            var admin = _context.UserWorkSpaceRoles.Where(o => o.WorkSpaceId == wsID && o.UserId == userID && o.RoleId == 1).FirstOrDefault();
+            var userCreateTask = _context.UserTaskRoles.Where(o => o.TaskId == taskID && o.UserId == userID && o.RoleId == 1).FirstOrDefault();
+            var user = _context.Users.SingleOrDefault(o => o.Id == userID);
+            if (admin != null || userCreateTask != null)
+            {
+                task.SectionId = sectionNewID;
+                _context.Tasks.Update(task);
+                var noti = new Notification
+                {
+                    TaskId = taskID,
+                    UserActiveId = userID,
+                    Describe = $"{user.UserName} đã chuyển {task.Title.ToUpper()} từ {sec.Title.ToUpper()} section sang {sectionNew.Title.ToUpper()} section",
+                };
+                _context.Notifications.Add(noti);
+                var taskMap = _mapper.Map<TaskGetObject>(task);
+                taskMap.Info = GetInforTask(taskID);
+                if (Save())
+                {
+                    return new ResponseObject
+                    {
+                        Status = Status.Success,
+                        Message = Message.Success,
+                        Data = taskMap
+                    };
+                }
+                else
+                {
+                    return new ResponseObject
+                    {
+                        Status = Status.BadRequest,
+                        Message = Message.BadRequest,
+                    };
+                }
+            }
+            return new ResponseObject
+            {
+                Status = Status.BadRequest,
+                Message = Message.BadRequest,
+            };
+        }
     }
 }
