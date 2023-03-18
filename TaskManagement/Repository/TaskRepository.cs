@@ -856,15 +856,31 @@ namespace TaskManagement.Repository
         }
         public ResponseObject GetUserTaskRoleByUserID(int userId)
         {
-            var userTask = _context.UserTaskRoles.Where(o => o.UserId == userId && o.RoleId != 1).ToList();
+            var userTask = _context.UserTaskRoles.Join(_context.Tasks, userRole => userRole.TaskId, task => task.Id, 
+                (userRole, task) => new
+                {
+                    UserId = userRole.UserId,
+                    RoleId = userRole.RoleId,
+                    StatusUser = userRole.Status,
+                    PinUser = userRole.PinTask,
+                    TaskId = task.Id,
+                    SectionId= task.SectionId,
+                    TaskTitle = task.Title,
+                    TaskDescribe = task.Describe,
+                    Image = task.Image,
+                    TaskFrom = task.TaskFrom,
+                    TaskTo = task.TaskTo,
+                    Attachment = task.Attachment,
+                } 
+               ).Where(o => o.UserId == userId && o.RoleId != 1).ToList();
             if (userTask != null)
             {
-                var userTaskMap = _mapper.Map<List<UserTaskRoleDto>>(userTask);
+
                 return new ResponseObject
                 {
                     Status = Status.Success,
                     Message = Message.Success,
-                    Data = userTaskMap
+                    Data = userTask
                 };
             }
 
