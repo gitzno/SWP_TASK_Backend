@@ -193,27 +193,6 @@ namespace TaskManagement.Repository
                 };
             }
 
-            string patternemail = @"^[a-za-z0-9._%+-]+@gmail.com$";
-            if (user.Email != null && !Regex.IsMatch(user.Email, patternemail))
-            {
-                return new ResponseObject
-                {
-                    Status = Status.BadRequest,
-                    Message = Message.BadRequest + " Email is not valid",
-                    Data = null
-                };
-            }
-
-            string patternphone = @"^0\d{9}$";
-            if (user.Email != null && !Regex.IsMatch(user.Phone, patternphone))
-            {
-                return new ResponseObject
-                {
-                    Status = Status.BadRequest,
-                    Message = Message.BadRequest + " Phone is not valid",
-                    Data = null
-                };
-            }
 
             // hash password using md5 algorithm
             using (MD5 md5 = MD5.Create())
@@ -224,30 +203,15 @@ namespace TaskManagement.Repository
                 user.Password = hashedPassword;
             }
 
-
-            var userMap = _mapper.Map<User>(user);
-            userMap.Password = user.Password; // Assign hashed password to userMap.Password property
-
             _context.Users.Add(user);
+            _context.SaveChanges();
 
-            if (Save())
+            return new ResponseObject
             {
-
-                return new ResponseObject
-                {
-                    Status = Status.Created,
-                    Message = Message.Created,
-                    Data = userMap
-                };
-            }
-            else
-            {
-                return new ResponseObject
-                {
-                    Status = Status.BadRequest,
-                    Message = Message.BadRequest + " Created",
-                };
-            }
+                Status = Status.Created,
+                Message = Message.Created,
+                Data = null
+            };
         }
         public ResponseObject UpdateUser(User user)
         {
@@ -313,6 +277,14 @@ namespace TaskManagement.Repository
 
         public ResponseObject Login(User user)
         {
+
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] inputBytes = Encoding.ASCII.GetBytes(user.Password);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+                string hashedPassword = BitConverter.ToString(hashBytes).Replace("-", "").Substring(0, 16);
+                user.Password = hashedPassword;
+            }
             var accDB = _context.Users
                     .Where(u => u.UserName == user.UserName && u.Password == user.Password)
                     .FirstOrDefault();
@@ -423,7 +395,7 @@ namespace TaskManagement.Repository
             }
             else
             {
-                return new ResponseObject { Status = Status.NotFound, Message = Message.NotFound +" user"};
+                return new ResponseObject { Status = Status.NotFound, Message = Message.NotFound + " user" };
             }
         }
 
@@ -446,7 +418,7 @@ namespace TaskManagement.Repository
                 return new ResponseObject
                 {
                     Status = Status.NotFound,
-                    Message = Message.NotFound +" user in workSpace",
+                    Message = Message.NotFound + " user in workSpace",
                 };
             }
             var userDeleteTask = _context.UserTaskRoles

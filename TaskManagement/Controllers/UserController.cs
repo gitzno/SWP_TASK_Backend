@@ -69,13 +69,13 @@ namespace TaskManagement.Controllers
             return Ok(users);   
         }
         // POST api/<UserController>
-        //[HttpPost]
-        //public IActionResult CreateUser([FromBody] UserDto userCreate)
-        //{
-        //    var userMap = _mapper.Map<User>(userCreate);
-        //    var create = _userRepository.CreateUser(userMap);
-        //    return Ok(create);
-        //}
+        [HttpPost("Register")]
+        public IActionResult Register([FromBody] User user)
+        {
+            
+            var create = _userRepository.CreateUser(user);
+            return Ok(create);
+        }
 
         // PUT api/<UserController>/5
         [HttpPut("{userId}")]
