@@ -299,6 +299,7 @@ namespace TaskManagement.Repository
                     new
                     {
                         username = user.UserName,
+                        usernameID= accDB.Id,
                         token = GenerateToken.GenerateMyToken(user)
                     }
                 };
