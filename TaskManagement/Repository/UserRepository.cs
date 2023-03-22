@@ -161,7 +161,7 @@ namespace TaskManagement.Repository
             }
             var users = _context.UserTaskRoles.Where(o => o.TaskId == taskID && o.RoleId == 2).Select(o => o.User).Distinct().ToList();
             var usersMap = _mapper.Map<List<UserDto>>(users);
-            if (users != null)
+            if (users != null)  
             {
                 return new ResponseObject
                 {
