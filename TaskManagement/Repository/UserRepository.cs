@@ -14,6 +14,7 @@ using TaskManagement.Service;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace TaskManagement.Repository
 {
@@ -213,8 +214,19 @@ namespace TaskManagement.Repository
                 Data = null
             };
         }
-        public ResponseObject UpdateUser(User user)
+        public ResponseObject UpdateUser(User user, int userId)
         {
+            if (user.Id != userId)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                };
+            }
+            var _user = _context.Users.AsNoTracking().SingleOrDefault(o => o.Id== userId);
+
+            user.Password = _user.Password;
             _context.Update(user);
             var userMap = _mapper.Map<UserDto>(user);
             if (Save())

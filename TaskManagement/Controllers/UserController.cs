@@ -79,10 +79,10 @@ namespace TaskManagement.Controllers
 
         // PUT api/<UserController>/5
         [HttpPut("{userId}")]
-        public IActionResult UpdateUser([FromForm]int userId, [FromBody]UserDto updatedUser)
+        public IActionResult UpdateUser(int userId, [FromBody]UserDto updatedUser)
         {
             var userMap = _mapper.Map<User>(updatedUser);
-            var update = _userRepository.UpdateUser(userMap);
+            var update = _userRepository.UpdateUser(userMap, userId);
             return Ok(update);
         }
 

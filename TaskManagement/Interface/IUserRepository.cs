@@ -22,7 +22,7 @@ namespace TaskManagement.Interface
         
         ResponseObject GetUsersUnJoinTask(int taskID);// những user đã join vào ws nhưng chưa join vào task
         ResponseObject CreateUser(User user);
-        ResponseObject UpdateUser(User user);
+        ResponseObject UpdateUser(User user, int userId);
         ResponseObject DeleteUser(User user);
         ResponseObject Login(User user);
         bool UserExists(int userId);

@@ -20,7 +20,7 @@ namespace TaskManagement.Interface
         ResponseObject GetTasks();
         Task GetTaskByID(int taskId);
         ResponseObject CreateTask(int? sectionID, int userId, int roleId, Task task);
-        ResponseObject UpdateTask(Task task, int userID);
+        ResponseObject UpdateTask(Task task, int userID, int taskID);
         ResponseObject DeleteTask(Task task, int userID);
         bool Save();
 

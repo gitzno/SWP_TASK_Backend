@@ -296,8 +296,16 @@ namespace TaskManagement.Repository
         }
 
 
-        public ResponseObject UpdateTask(Models.Task task, int userID)
+        public ResponseObject UpdateTask(Models.Task task, int userID, int taskID)
         {
+            if (taskID != task.Id)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.BadRequest,
+                    Message = Message.BadRequest,
+                };
+            }
             List<Notification> noti = new List<Notification>();
             var _user = _context.Users.SingleOrDefault(o => o.Id == userID);
 
@@ -337,7 +345,7 @@ namespace TaskManagement.Repository
                             Describe = _user.UserName + " đã thay đổi tiêu đề thành " + task.Title.ToUpper(),
                         });
                     }
-                    if (!_task.Describe.Equals(task.Describe))
+                    if (_task.Describe != task.Describe)
                     {
                         noti.Add(new Notification
                         {

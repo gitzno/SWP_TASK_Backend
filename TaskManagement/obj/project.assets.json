@@ -8702,23 +8702,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\84352\\.nuget\\packages\\": {},
+    "C:\\Users\\ADMIN\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\84352\\Desktop\\FINAL BACKEND\\SWP_TASK_Backend\\TaskManagement\\TaskManagement.csproj",
+      "projectUniqueName": "E:\\ky 5\\SWP391\\backend_ducabc\\SWP_TASK_Backend\\TaskManagement\\TaskManagement.csproj",
       "projectName": "TaskManagement",
-      "projectPath": "C:\\Users\\84352\\Desktop\\FINAL BACKEND\\SWP_TASK_Backend\\TaskManagement\\TaskManagement.csproj",
-      "packagesPath": "C:\\Users\\84352\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\84352\\Desktop\\FINAL BACKEND\\SWP_TASK_Backend\\TaskManagement\\obj\\",
+      "projectPath": "E:\\ky 5\\SWP391\\backend_ducabc\\SWP_TASK_Backend\\TaskManagement\\TaskManagement.csproj",
+      "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
+      "outputPath": "E:\\ky 5\\SWP391\\backend_ducabc\\SWP_TASK_Backend\\TaskManagement\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\84352\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -8830,7 +8830,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.201\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.101\\RuntimeIdentifierGraph.json"
       }
     }
   },

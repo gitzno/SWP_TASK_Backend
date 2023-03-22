@@ -85,10 +85,10 @@ namespace TaskManagement.Controllers
         }
 
         [HttpPut("{taskID}")]
-        public IActionResult UpdateTask([FromBody] TaskDto taskUpdate, int userID)
+        public IActionResult UpdateTask([FromBody] TaskDto taskUpdate, int userID, int taskID)
         {
             var taskMap = _mapper.Map<Models.Task>(taskUpdate);
-            var update = _taskRepository.UpdateTask(taskMap, userID);
+            var update = _taskRepository.UpdateTask(taskMap, userID, taskID);
             return Ok(update);
         }
 
