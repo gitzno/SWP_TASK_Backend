@@ -24,7 +24,15 @@ namespace TaskManagement.Repository
         public ResponseObject AddMemberIntoWorkspace(int workSpaceID, string nameUser, int roleID, int adminID)
         {
 
-            var user = _context.Users.Where(u => u.UserName == nameUser).FirstOrDefault();
+            var user = _context.Users.Where(u => u.UserName == nameUser).FirstOrDefault(); // null
+            if (user == null)
+            {
+                return new ResponseObject
+                {
+                    Status = Status.NotFound,
+                    Message = Message.NotFound + "user",
+                };
+            }
             var role = _context.Roles.Where(r => r.Id == roleID).FirstOrDefault();
             var workSpace = _context.WorkSpaces.Where(w => w.Id == workSpaceID).FirstOrDefault();
             var _user = _context.UserWorkSpaceRoles
@@ -38,14 +46,7 @@ namespace TaskManagement.Repository
                     Message = Message.BadRequest + " not ADMIN"
                 };
             }
-            if (user == null)
-            {
-                return new ResponseObject
-                {
-                    Status = Status.NotFound,
-                    Message = Message.NotFound +"user",
-                };
-            }
+            
             if (role == null)
             {
                 return new ResponseObject
